@@ -209,8 +209,8 @@ void main(){
                             cleanBuffer();
                         }while(fraccion<=0 || fraccion>subjet.subFrac_length);
                         fraccion--;
+                        /*edit Subject fraction:*/
                         editSubjFrac(subjet.subjFrac[fraccion]);
-
                     default:
                         break;
                     }
