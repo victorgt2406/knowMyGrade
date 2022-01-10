@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade'
+make: Leaving directory '/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+ 
