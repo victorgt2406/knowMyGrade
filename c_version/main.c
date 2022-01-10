@@ -47,11 +47,19 @@
         //PRINT
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
+        //EDIT
+        int editSubjet(Subjet subjet);
+        int editSubjFrac(SubjFrac frac);
+            //MENU
+            int editSubjFracMenu();
+            int editSubjetMenu();
+            
 
     
 void main(){
     Subjet sub = newSubjet();
     printcSubjet(sub,1,0);
+    editSubjet(sub);
 }
 
 /*FUNCTIONS*/
@@ -116,7 +124,7 @@ void main(){
                     scanf("%d",&grade);
                     cleanBuffer();
                 }while(grade<0);
-                subjFrac->grades=(SubjFrac*)realloc(subjFrac->grades,sizeof(SubjFrac)*((subjFrac->grades_length)+1));
+                subjFrac->grades=(int*)realloc(subjFrac->grades,sizeof(int)*((subjFrac->grades_length)+1));
                 subjFrac->grades[subjFrac->grades_length]=grade;
                 subjFrac->grades_length++;
             }
@@ -157,43 +165,55 @@ void main(){
             }
     
         /*Edit*/
-            int editSubjet(Subjet subjet,int option){
+            int editSubjet(Subjet subjet){
+                /*
+                printf("Edit subjet:"
+                    "\t1.Edit name\n"
+                    "\t2.Edit number of subjets fracctions\n"
+                    "\t3.Edit subjets fracctions\n"
+                    "\t-1.Delete\n");
+                */
+                printf("%s -> ",subjet.name);
+                int menu = editSubjetMenu();
                 int delete=0;
-                switch (option)
+                switch (menu)
                 {
-                case 0:
-                    delete=1;
-                    break;
-                case 1://name
-                    printf("Edit name:\n");
-                    free(subjet.name);
-                    subjet.name=NULL;
-                    subjet.name=scanString();
-                    break;
+                    case -1:
+                        delete=1;
+                        break;
+                    case /*edit name*/1:
+                        printf("Edit name:\n");
+                        free(subjet.name);
+                        subjet.name=NULL;
+                        subjet.name=scanString();
+                        break;
 
-                case 2://Fractions length
-                    int length=subjet.subFrac_length;
-                    do{
-                        printf("Fractions of subjets:\n");
-                        scanf("%d",&subjet.subFrac_length);
-                        cleanBuffer();
-                    }while(subjet.subFrac_length<=0 || subjet.subFrac_length>=length);
-                    break;
+                    case /*Edit number of subjets fracctions*/2:;
+                        int length=subjet.subFrac_length;
+                        do{
+                            printf("Fractions of subjets:\n");
+                            scanf("%d",&subjet.subFrac_length);
+                            cleanBuffer();
+                        }while(subjet.subFrac_length<=0 || subjet.subFrac_length>=length);
+                        break;
 
-                case 3://Fractions 
-                    for(int i=0; i<subjet.subFrac_length; i++){
-                        printcSubjFrac(subjet.subjFrac[i],0,0);
+                    case /*Edit subjets fracctions*/3:;
+                        int fraccion;
+                        do{
+                            printf("Choose the fraction of the subject:\n");
+                            for(int i=0; i<subjet.subFrac_length; i++){
+                                printf("%i: ",i+1);
+                                printcSubjFrac(subjet.subjFrac[i],0,0);
+                            }
+                            scanf("%d",&fraccion);
+                            cleanBuffer();
+                        }while(fraccion<=0 || fraccion>subjet.subFrac_length);
+                        fraccion--;
+                        editSubjFrac(subjet.subjFrac[fraccion]);
+
+                    default:
+                        break;
                     }
-                    int fraccion;
-                    do{
-                        printf("Choose the fraction of the subject:\n");
-                        scanf("%d",&fraccion);
-                        cleanBuffer();
-                    }while(fraccion<=0 || fraccion>=subjet.subFrac_length);
-
-                default:
-                    break;
-                }
                 return delete;
             }
     
@@ -205,6 +225,7 @@ void main(){
                     "\t3.Edit grades"
                     "\t-1.Delete");
                 */
+                printf("%s -> ",frac.name);
                 int menu = editSubjFracMenu();
                 switch (menu)
                 {
@@ -214,37 +235,72 @@ void main(){
                     frac.name=NULL;
                     frac.name=scanString();
                     break;
+                
+                case /*edit value*/2:;
+                    int lastValue=frac.value;
+                    do{
+                        printf("Edit value:\n");
+                        scanf("%d",&frac.value);
+                    }while(frac.value <= 0 || frac.value>=lastValue);
+                    break;
+
+                case /*edit grades*/3:
+                    break;
 
                 default:
                     break;
                 }
             }
             /*Edit menu*/
-            int editSubjFracMenu(){
-                /*
-                typedef struct SubjFrac
-                {
-                    char* name;         //Obligatory
-                    int value;          //Obligatory    Values from 1% to 100%
-                    int* grades;        //Obligatory
-                    int grades_length;  //Obligatory
+                int editSubjetMenu(){
+                    /*
+                    typedef struct Subjet
+                    {
+                        char* name;             //Obligatory
+                        SubjFrac* subjFrac;     //Obligatory    Fracctions of a subjet
+                        int subFrac_length;     //Obligatory    Number of Subjets Fractions
+                        int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
+                    }Subjet;
+                    */
+                    int menu=-2;
+                    do{
+                        printf("Edit subjet:\n"
+                            "\t1.Edit name\n"
+                            "\t2.Edit number of subjets fracctions\n"
+                            "\t3.Edit subjets fracctions\n"
+                            "\t-1.Delete\n");
+                        scanf("%d",&menu);
+                        cleanBuffer();                    
+                    }while((menu < -1 && menu > 2) || menu == 0);
+                    return menu;
+                }
 
-                    float mean;         //Not Obligatory
-                }SubjFrac;
-                */
-                int menu=-2;
-                do{
-                    printf("Edit subjet fraccion:\n"
-                        "\t1.Edit name"
-                        "\t2.Edit value"
-                        "\t3.Edit grades"
-                        "\t-1.Delete");
+                int editSubjFracMenu(){
+                    /*
+                    typedef struct SubjFrac
+                    {
+                        char* name;         //Obligatory
+                        int value;          //Obligatory    Values from 1% to 100%
+                        int* grades;        //Obligatory
+                        int grades_length;  //Obligatory
 
-                    scanf("%d",&menu);
-                    cleanBuffer();
-                }while(menu<-1 && menu>3);
-                return menu;
-            }
+                        float mean;         //Not Obligatory
+                    }SubjFrac;
+                    */
+                    int menu=-2;
+                    do{
+                        printf("Edit subjet fraccion:\n"
+                            "\t1.Edit name\n"
+                            "\t2.Edit value\n"
+                            "\t3.Edit grades\n"
+                            "\t-1.Delete\n");
+
+                        scanf("%d",&menu);
+                        cleanBuffer();
+                    }while((menu < -1 && menu > 3) || menu == 0);
+                    return menu;
+                }
+        
     /***************/
     /*Basics*/
         void cleanBuffer(){
