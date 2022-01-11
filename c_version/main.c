@@ -70,18 +70,20 @@
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
         //EDIT
-        int editSubjet(Subjet subjet);
-        int editSubjFrac(SubjFrac frac);
+        int editSubjet(Subjet* subjet);
+        int editSubjFrac(SubjFrac* frac);
             //MENU
             int editSubjFracMenu();
             int editSubjetMenu();
-            
+        //DELETE
+        Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
 
     
 void main(){
     Subjet sub = newSubjet();
     printcSubjet(sub,1,0);
-    editSubjet(sub);
+    editSubjet(&sub);
+    printcSubjet(sub,1,0);
 }
 
 /*FUNCTIONS*/
@@ -147,7 +149,7 @@ void main(){
 
                 do{
                     printf("Your grade:\n");
-                    scanf("%d",&new.grade);
+                    scanf("%f",&new.grade);
                     cleanBuffer();
                 }while(new.grade<0);
 
@@ -177,7 +179,7 @@ void main(){
                 if(all==1){
                     printf("%s\tNumber of grades:%d\n%s\t",t,print.grades_length,t);
                     for(int i=0; i<print.grades_length; i++){
-                        printf("%d",print.grades[i]);
+                        /*Provisional*/printf("%f",print.grades[i].grade); /*Make func printcGrade*/
                         if(i!=print.grades_length-1){
                             printf(",");
                         }
@@ -190,7 +192,7 @@ void main(){
             }
     
         /*Edit*/
-            int editSubjet(Subjet subjet){
+            int editSubjet(Subjet* subjet){
                 /*
                 printf("Edit subjet:"
                     "\t1.Edit name\n"
@@ -198,7 +200,7 @@ void main(){
                     "\t3.Edit subjets fracctions\n"
                     "\t-1.Delete\n");
                 */
-                printf("%s -> ",subjet.name);
+                printf("%s -> ",subjet->name);
                 int menu = editSubjetMenu();
                 int delete=0;
                 switch (menu)
@@ -208,41 +210,54 @@ void main(){
                         break;
                     case /*edit name*/1:
                         printf("Edit name:\n");
-                        free(subjet.name);
-                        subjet.name=NULL;
-                        subjet.name=scanString();
+                        free(subjet->name);
+                        subjet->name=NULL;
+                        subjet->name=scanString();
                         break;
 
                     case /*Edit number of subjets fracctions*/2:;
-                        int length=subjet.subFrac_length;
+                        int length=subjet->subFrac_length;
                         do{
                             printf("Fractions of subjets:\n");
-                            scanf("%d",&subjet.subFrac_length);
+                            scanf("%d",&subjet->subFrac_length);
                             cleanBuffer();
-                        }while(subjet.subFrac_length<=0 || subjet.subFrac_length>=length);
+                        }while(subjet->subFrac_length<=0 || subjet->subFrac_length>=length);
                         break;
 
                     case /*Edit subjets fracctions*/3:;
                         int fraccion;
                         do{
                             printf("Choose the fraction of the subject:\n");
-                            for(int i=0; i<subjet.subFrac_length; i++){
+                            for(int i=0; i<subjet->subFrac_length; i++){
                                 printf("%i: ",i+1);
-                                printcSubjFrac(subjet.subjFrac[i],0,0);
+                                printcSubjFrac(subjet->subjFrac[i],0,0);
                             }
                             scanf("%d",&fraccion);
                             cleanBuffer();
-                        }while(fraccion<=0 || fraccion>subjet.subFrac_length);
+                        }while(fraccion <= 0 || fraccion > (subjet->subFrac_length));
                         fraccion--;
-                        /*edit Subject fraction:*/
-                        editSubjFrac(subjet.subjFrac[fraccion]);
+                        /*edit Subject fraction selected:*/
+                        if(editSubjFrac(&(subjet->subjFrac[fraccion]))==1){
+                            printf("%s has been deleted\n",subjet->subjFrac[fraccion].name);
+                            /*In case of delete*/
+                                /*Copy from the pointer of subjFrac*/
+                                Arrays_KMG orig;    
+                                orig.subjFrac=subjet->subjFrac;
+                                orig.array_length=subjet->subFrac_length;
+                                /*Copy the new pointer to subjFrac*/
+                                Arrays_KMG res = deleteElement(orig, subjFrac, fraccion);
+                                subjet->subjFrac = res.subjFrac;
+                                subjet->subFrac_length = res.array_length;
+                        }
+                        break;
                     default:
+                        printf("Error in editSubjet();\n");
                         break;
                     }
                 return delete;
             }
     
-            int editSubjFrac(SubjFrac frac){
+            int editSubjFrac(SubjFrac* frac){
                 /*
                 printf("Edit subjet fraccion:\n"
                     "\t1.Edit name"
@@ -250,31 +265,37 @@ void main(){
                     "\t3.Edit grades"
                     "\t-1.Delete");
                 */
-                printf("%s -> ",frac.name);
+                printf("%s -> ",frac->name);
                 int menu = editSubjFracMenu();
+                int delete=0;
                 switch (menu)
                 {
-                case /*edit name*/1:
-                    printf("Edit name:\n");
-                    free(frac.name);
-                    frac.name=NULL;
-                    frac.name=scanString();
-                    break;
-                
-                case /*edit value*/2:;
-                    int lastValue=frac.value;
-                    do{
-                        printf("Edit value:\n");
-                        scanf("%d",&frac.value);
-                    }while(frac.value <= 0 || frac.value>=lastValue);
-                    break;
+                    case /*delete*/ -1:
+                        delete=1;
+                        break;
+                    case /*edit name*/ 1:
+                        printf("Edit name:\n");
+                        free(frac->name);
+                        frac->name=NULL;
+                        frac->name=scanString();
+                        break;
+                    
+                    case /*edit value*/ 2:;
+                        int lastValue=frac->value;
+                        do{
+                            printf("Edit value:\n");
+                            scanf("%d",&frac->value);
+                        }while(frac->value <= 0 || frac->value>=lastValue);
+                        break;
 
-                case /*edit grades*/3:
-                    break;
+                    case /*edit grades*/ 3:
+                        break;
 
-                default:
-                    break;
-                }
+                    default:
+                        printf("Error in editSubjFrac();\n");
+                        break;
+                    }
+                return delete;
             }
             /*Edit menu*/
                 int editSubjetMenu(){
@@ -346,8 +367,8 @@ void main(){
                     orig./*Change*/grade=NULL;
                     break;
                 case subjFrac:
-                    array./*Change*/subjFrac = (/*Change*/SubjFrac*)malloc(sizeof(/*Change*/Grade)*(array.array_length));
-                    int j=0; //j-array counter
+                    array./*Change*/subjFrac = (/*Change*/SubjFrac*)malloc(sizeof(/*Change*/SubjFrac)*(array.array_length));
+                    j=0; //j-array counter
                     for(int i=0; i<orig.array_length; i++){
                         //i-orig counter
                         if(i!=arrayPos){
@@ -359,7 +380,8 @@ void main(){
                     orig./*Change*/subjFrac=NULL;
                     break;
                 case subjet:
-                    array./*Change*/subjet = (/*Change*/Subjet*)malloc(sizeof(/*Change*/Grade)*(array.array_length));
+                    array./*Change*/subjet = (/*Change*/Subjet*)malloc(sizeof(/*Change*/Subjet)*(array.array_length));
+                    j=0; //j-array counter
                     for(int i=0; i<orig.array_length; i++){
                         //i-orig counter
                         if(i!=arrayPos){
@@ -374,6 +396,7 @@ void main(){
                     printf("Error in deleteElement();\n");
                     break;
                 }
+
                 return array;
             }
     /***************/
