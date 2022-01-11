@@ -69,6 +69,7 @@
         //PRINT
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
+        void printcGrade(Grade print, int tab);
         //EDIT
         int editSubjet(Subjet* subjet);
         int editSubjFrac(SubjFrac* frac);
@@ -177,20 +178,18 @@ void main(){
                 printf("%s%s\n",t,print.name);
                 printf("%s\tValue: %d%%\n",t,print.value);
                 if(all==1){
-                    printf("%s\tNumber of grades:%d\n%s\t",t,print.grades_length,t);
+                    printf("%s\tNumber of grades: %d\n",t,print.grades_length);
                     for(int i=0; i<print.grades_length; i++){
-                        /*Provisional*/printf("%f",print.grades[i].grade); /*Make func printcGrade*/
-                        if(i!=print.grades_length-1){
-                            printf(",");
-                        }
-                        else{
-                            printf(";");
-                        }
+                        printcGrade(print.grades[i],tab+2);
                     }
-                    printf("\n");
                 }
             }
     
+            void printcGrade(Grade print, int tab){
+                char* t=strTabs(tab);
+                //modelo printf("%s",t);
+                printf("%sScore of %.2f in %s\n",t,print.grade,print.name);
+            }
         /*Edit*/
             int editSubjet(Subjet* subjet){
                 /*
