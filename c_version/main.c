@@ -4,6 +4,10 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+/*to make directories*/
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /*Structs*/
     /*For comodity*/
@@ -16,7 +20,7 @@
             float grade;
         }Grade;
         
-        /*Fracctions of a subjet*/
+        /*Fractions of a subjet*/
         typedef struct SubjFrac
         {
             char* name;         //Obligatory
@@ -31,7 +35,7 @@
         typedef struct Subjet
         {
             char* name;             //Obligatory
-            SubjFrac* subjFrac;     //Obligatory    Fracctions of a subjet
+            SubjFrac* subjFrac;     //Obligatory    Fractions of a subjet
             int subFrac_length;     //Obligatory    Number of Subjets Fractions
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
         }Subjet;
@@ -57,9 +61,10 @@
 
 /*FUNCTIONS DECLARATIONS*/
     /*Basics*/
-    char* scanString();
-    void cleanBuffer();
-    char* strTabs(int n);
+    char* scanString();     //Read a string from console.
+    void cleanBuffer();     //Cleans the buffer from scanf();
+    char* strTabs(int n);   //Creates a string with n tabulators
+    int makeDirectory(char* nameOfDirectory);   //Creates a new directory if it doesn't exist.
 
     /*Know My Grade*/
         //NEW
@@ -73,9 +78,13 @@
         //EDIT
         int editSubjet(Subjet* subjet);
         int editSubjFrac(SubjFrac* frac);
+        int editGrade(Grade* grade);
             //MENU
             int editSubjFracMenu();
             int editSubjetMenu();
+            int editGradeMenu();
+            //EXTRA
+            void updateSubjFracValues(Subjet* subjet);
         //DELETE
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
 
@@ -92,6 +101,7 @@ void main(){
         /*NEW*/
             /*Creates a new subjet*/
             Subjet newSubjet(){
+                printf("New subjet:\n");
                 Subjet new;
 
                 /*GetInputs*/
@@ -114,9 +124,9 @@ void main(){
                     }
                 return new;
             }
-
-            /*Creates a new subjet Fracction*/
+            /*Creates a new subjet fraction*/
             SubjFrac newSubjFrac(int* usedValue){
+                printf("New subjet fraction:\n");
                 SubjFrac new;
 
                 /*GetInputs*/
@@ -141,9 +151,11 @@ void main(){
 
                 return new;
             }
-
+            /*Creates a new Grade*/
             Grade newGrade(){
+                printf("New grade:\n");
                 Grade new;
+                
                 new.grade=0;
                 printf("Grade name:\n");
                 new.name=scanString();
@@ -171,7 +183,7 @@ void main(){
                 //Used Value:
                 printf("%s\tUsed value: %d\n",t,print.usedValue);
             }
-
+            /*Print Subjet Fraction*/
             void printcSubjFrac(SubjFrac print, int all, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
@@ -193,10 +205,11 @@ void main(){
         /*Edit*/
             int editSubjet(Subjet* subjet){
                 /*
-                printf("Edit subjet:"
+                 printf("Edit subjet:\n"
                     "\t1.Edit name\n"
-                    "\t2.Edit number of subjets fracctions\n"
-                    "\t3.Edit subjets fracctions\n"
+                    "\t2.Edit subjets fractions\n"
+                    "\n\t3.New subjet fraction\n"
+                    "\n\t0.Exit\n"
                     "\t-1.Delete\n");
                 */
                 printf("%s -> ",subjet->name);
@@ -217,16 +230,7 @@ void main(){
                         subjet->name=scanString();
                         break;
 
-                    case /*Edit number of subjets fracctions*/2:;
-                        int length=subjet->subFrac_length;
-                        do{
-                            printf("Fractions of subjets:\n");
-                            scanf("%d",&subjet->subFrac_length);
-                            cleanBuffer();
-                        }while(subjet->subFrac_length<=0 || subjet->subFrac_length>=length);
-                        break;
-
-                    case /*Edit subjets fracctions*/3:;
+                    case /*Edit subjets fractions*/2:;
                         int pos;
                         do{
                             printf("Choose the fraction of the subject:\n");
@@ -252,6 +256,19 @@ void main(){
                                 subjet->subFrac_length = res.array_length;
                         }
                         break;
+
+                    case /*New subjet fraction*/3:;
+                        //Updating subjet fractions values
+                        if(subjet->usedValue >= 100){
+                            updateSubjFracValues(subjet);
+                        }
+                        //+1 length of the array
+                        subjet->subFrac_length++;
+                        subjet->subjFrac=(SubjFrac*)realloc(subjet->subjFrac, sizeof(SubjFrac)*(subjet->subFrac_length));
+                        //getting the new element in the las position
+                        subjet->subjFrac[(subjet->subFrac_length-1)]=newSubjFrac(&(subjet->usedValue));
+
+                        break;
                     default:
                         printf("Error in editSubjet();\n");
                         break;
@@ -265,7 +282,8 @@ void main(){
                     "\t1.Edit name\n"
                     "\t2.Edit value\n"
                     "\t3.Edit grades\n"
-                    "\t0.Exit\n"
+                    "\n\t4.New grade\n"
+                    "\n\t0.Exit\n"
                     "\t-1.Delete\n");
                 */
                 printf("%s -> ",subjFrac->name);
@@ -294,7 +312,7 @@ void main(){
                         }while(subjFrac->value <= 0 || subjFrac->value>=lastValue);
                         break;
 
-                    case /*edit grades*/ 3:
+                    case /*edit grades*/ 3:;
                         int pos=0;
                         do{
                             printf("Choose the fraction of the subject:\n");
@@ -314,11 +332,19 @@ void main(){
                                 orig.grade=subjFrac->grades;
                                 orig.array_length=subjFrac->grades_length;
                                 /*Copy the new pointer to grades*/
-                                Arrays_KMG res = deleteElement(orig, subjFrac, pos);
-                                subjFrac->grades = res.subjFrac;
+                                Arrays_KMG res = deleteElement(orig, grade, pos);
+                                subjFrac->grades = res.grade;
                                 subjFrac->grades_length = res.array_length;
 
                         }
+
+                    case /*new grade*/4:;
+                        //+1 length of the array
+                        subjFrac->grades_length++;  
+                        subjFrac->grades=(Grade*)realloc(subjFrac->grades, sizeof(Grade)*(subjFrac->grades_length));
+                        //getting the new element in the las position
+                        subjFrac->grades[(subjFrac->grades_length-1)]=newGrade();
+                        break;
 
                     default:
                         printf("Error in editSubjFrac();\n");
@@ -366,11 +392,12 @@ void main(){
             }
             /*Edit menu*/
                 int editSubjetMenu(){
+                    #define MAX_editSubjetMenu 3
                     /*
                     typedef struct Subjet
                     {
                         char* name;             //Obligatory
-                        SubjFrac* subjFrac;     //Obligatory    Fracctions of a subjet
+                        SubjFrac* subjFrac;     //Obligatory    fractions of a subjet
                         int subFrac_length;     //Obligatory    Number of Subjets Fractions
                         int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
                     }Subjet;
@@ -379,17 +406,18 @@ void main(){
                     do{
                         printf("Edit subjet:\n"
                             "\t1.Edit name\n"
-                            "\t2.Edit number of subjets fracctions\n"
-                            "\t3.Edit subjets fracctions\n\n"
-                            "\t0.Exit\n"
+                            "\t2.Edit subjets fractions\n"
+                            "\n\t3.New subjet fraction\n"
+                            "\n\t0.Exit\n"
                             "\t-1.Delete\n");
                         scanf("%d",&menu);
                         cleanBuffer();                    
-                    }while((menu < -1 && menu > 2));
+                    }while((menu < -1 && menu > MAX_editSubjetMenu));
                     return menu;
                 }
 
                 int editSubjFracMenu(){
+                    #define MAX_editSubjFracMenu 5
                     /*
                     typedef struct SubjFrac
                     {
@@ -406,8 +434,9 @@ void main(){
                         printf("Edit subjet fraccion:\n"
                             "\t1.Edit name\n"
                             "\t2.Edit value\n"
-                            "\t3.Edit grades\n\n"
-                            "\t0.Exit\n"
+                            "\t3.Edit grades\n"
+                            "\n\t4.New grade\n"
+                            "\n\t0.Exit\n"
                             "\t-1.Delete\n");
 
                         scanf("%d",&menu);
@@ -421,16 +450,40 @@ void main(){
                     do{
                         printf("Edit Grade:\n"
                             "\t1.Edit name\n"
-                            "\t2.Edit grade\n\n"
-                            "\t0.Exit\n"
+                            "\t2.Edit grade\n"
+                            "\n\t0.Exit\n"
                             "\t-1.Delete\n");
-                        scanf("%f",&menu);
+                        scanf("%d",&menu);
                         cleanBuffer();
                     }while( menu < -1 && menu > 2);
 
                     return menu;
                 }
-        
+            /*Extra*/
+                void updateSubjFracValues(Subjet* subjet){
+                    while(subjet->usedValue>=100){
+                        subjet->usedValue=0;
+                        for(int i=0; i<(subjet->subFrac_length); i++){
+                            int yes=0;
+                            printf("%s has a value of %d%%,\n"
+                            "do you want to change it?\n"
+                            "Press 1 if yes.\n",subjet->subjFrac[i].name,subjet->subjFrac[i].value);
+                            scanf("%d",&yes);
+                            cleanBuffer();
+                            if(yes==1){
+                                do{
+                                    printf("Type the new value:\n");
+                                    scanf("%d",&subjet->subjFrac[i].value);
+                                    cleanBuffer();
+                                }while(subjet->subjFrac[i].value <= 0);
+                            }
+                            subjet->usedValue+=subjet->subjFrac[i].value;
+                        }
+                        if(subjet->usedValue>=100){
+                            printf("The total value is over 100%%, %d%%.\n  It has to be under 100%%\n",subjet->usedValue);
+                        }
+                    }
+                }
         /*Delete element in array*/
             Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos){
                 Arrays_KMG array;
@@ -515,4 +568,15 @@ void main(){
             str[n]='\0';
             return str;
         }
+    
+        int makeDirectory(char* nameOfDirectory){
+            struct stat st = {0};
+            int exist=0;
+            if (stat(nameOfDirectory, &st) == -1) {
+                mkdir(nameOfDirectory, 0700);
+                exist=1;
+            }
+            return exist;
+        }
+
     /***************/
