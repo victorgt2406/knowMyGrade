@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+ 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jan 11 00:09:01 2022
+# Make data base, printed on Tue Jan 11 10:23:33 2022
 
 # Variables
 
@@ -15,7 +17,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # automatic
 ?F = $(notdir $?)
 # environment
-WSLENV = ELECTRON_RUN_AS_NODE/w:WT_SESSION::WT_PROFILE_ID
+WSLENV = VSCODE_WSL_EXT_LOCATION/up
 # default
 .SHELLFLAGS := -c
 # environment
@@ -35,7 +37,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en","availableLanguages":{}}
 # environment
-_ = /mnt/c/Users/victo/AppData/Local/Programs/Microsoft VS Code/bin/code
+_ = /home/vic/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/node
 # makefile
 MAKEFILE_LIST := 
 # 'override' directive
@@ -55,7 +57,7 @@ PATH = /home/vic/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-257f65c1-a908-4f41-ac6e-1b7ac4fda3a2.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-a6264659-30ab-4574-9042-7e269cbdb093.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -69,9 +71,7 @@ PWD = /mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/3133_interop
-# environment
-WT_SESSION = 3842e2a3-848a-49fb-a30e-44977f72f3fa
+WSL_INTEROP = /run/WSL/11_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/server/remoteExtensionHostProcess
 # environment
@@ -93,7 +93,7 @@ MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-SHLVL = 1
+SHLVL = 0
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -101,7 +101,7 @@ USER = vic
 # makefile
 .DEFAULT_GOAL := 
 # environment
-NAME = Code
+NAME = ALW_M15R3_W11
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
@@ -122,8 +122,6 @@ MFLAGS = -pqrR
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
 +F = $(notdir $+)
-# environment
-WT_PROFILE_ID = {2c4de342-38b7-51cf-b940-2309a097f518}
 # default
 MAKEFILES := 
 # automatic
@@ -151,7 +149,7 @@ VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 # environment
 WSL_DISTRO_NAME = Ubuntu
 # variable set hash-table stats:
-# Load=70/1024=7%, Rehash=0, Collisions=4/92=4%
+# Load=68/1024=7%, Rehash=0, Collisions=4/90=4%
 
 # Pattern-specific Variable Values
 
@@ -217,8 +215,6 @@ GNUmakefile:
 # strcache performance: lookups = 17 / hit rate = 17%
 # hash-table stats:
 # Load=14/8192=0%, Rehash=0, Collisions=1/17=6%
-# Finished Make data base on Tue Jan 11 00:09:01 2022
+# Finished Make data base on Tue Jan 11 10:23:33 2022
 
- 
-make: *** No rule to make target 'all'.  Stop.
  

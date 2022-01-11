@@ -7,18 +7,21 @@
 
 /*Structs*/
     /*For comodity*/
-        typedef struct String
-        {
-            char* toString;
-            int length;
-        }String;
+
     /*Know My Grade*/
+        /*Grades*/
+        typedef struct Grade
+        {
+            char* name;
+            float grade;
+        }Grade;
+        
         /*Fracctions of a subjet*/
         typedef struct SubjFrac
         {
             char* name;         //Obligatory
             int value;          //Obligatory    Values from 1% to 100%
-            int* grades;        //Obligatory
+            Grade* grades;      //Obligatory
             int grades_length;  //Obligatory
 
             float mean;         //Not Obligatory
@@ -33,6 +36,25 @@
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
         }Subjet;
 
+        /*Union with my Know My Grade Structs*/
+        typedef struct Arrays_KMG
+        {
+            union{
+                Grade* grade;
+                SubjFrac* subjFrac;
+                Subjet* subjet;
+            };
+            int array_length;         
+        }Arrays_KMG;
+
+        /*Enum with my types*/
+        typedef enum Enum_KMG{
+                grade,
+                subjFrac,
+                subjet,
+        }Enum_KMG;
+        
+
 /*FUNCTIONS DECLARATIONS*/
     /*Basics*/
     char* scanString();
@@ -43,7 +65,7 @@
         //NEW
         Subjet newSubjet();
         SubjFrac newSubjFrac(int* usedValue);
-        void newGrade(SubjFrac* subjFrac);
+        Grade newGrade();
         //PRINT
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
@@ -117,16 +139,19 @@ void main(){
                 return new;
             }
 
-            void newGrade(SubjFrac* subjFrac){
-                int grade=0;
+            Grade newGrade(){
+                Grade new;
+                new.grade=0;
+                printf("Grade name:\n");
+                new.name=scanString();
+
                 do{
                     printf("Your grade:\n");
-                    scanf("%d",&grade);
+                    scanf("%d",&new.grade);
                     cleanBuffer();
-                }while(grade<0);
-                subjFrac->grades=(int*)realloc(subjFrac->grades,sizeof(int)*((subjFrac->grades_length)+1));
-                subjFrac->grades[subjFrac->grades_length]=grade;
-                subjFrac->grades_length++;
+                }while(new.grade<0);
+
+                return new;
             }
 
         /*Print in console*/
@@ -301,6 +326,21 @@ void main(){
                     return menu;
                 }
         
+        /*Delete element in array*/
+            Arrays_KMG deleteElement(Arrays_KMG u, Enum_KMG e, int arrayPos){
+                switch (e)
+                {
+                case grade:
+                    break;
+                case subjFrac:
+                    break;
+                case subjet:
+                    break; 
+                default:
+                    printf("Error in deleteElement();\n");
+                    break;
+                }
+            }
     /***************/
     /*Basics*/
         void cleanBuffer(){
