@@ -327,19 +327,54 @@ void main(){
                 }
         
         /*Delete element in array*/
-            Arrays_KMG deleteElement(Arrays_KMG u, Enum_KMG e, int arrayPos){
+            Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos){
+                Arrays_KMG array;
+                array.array_length = orig.array_length-1;
                 switch (e)
                 {
                 case grade:
+                    array./*Change*/grade = (/*Change*/Grade*)malloc(sizeof(/*Change*/Grade)*(array.array_length));
+                    int j=0; //j-array counter
+                    for(int i=0; i<orig.array_length; i++){
+                        //i-orig counter
+                        if(i!=arrayPos){
+                            array./*Change*/grade[j]=orig./*Change*/grade[i];
+                            j++;
+                        }
+                    }
+                    free(orig./*Change*/grade);
+                    orig./*Change*/grade=NULL;
                     break;
                 case subjFrac:
+                    array./*Change*/subjFrac = (/*Change*/SubjFrac*)malloc(sizeof(/*Change*/Grade)*(array.array_length));
+                    int j=0; //j-array counter
+                    for(int i=0; i<orig.array_length; i++){
+                        //i-orig counter
+                        if(i!=arrayPos){
+                            array./*Change*/subjFrac[j]=orig./*Change*/subjFrac[i];
+                            j++;
+                        }
+                    }
+                    free(orig./*Change*/subjFrac);
+                    orig./*Change*/subjFrac=NULL;
                     break;
                 case subjet:
+                    array./*Change*/subjet = (/*Change*/Subjet*)malloc(sizeof(/*Change*/Grade)*(array.array_length));
+                    for(int i=0; i<orig.array_length; i++){
+                        //i-orig counter
+                        if(i!=arrayPos){
+                            array./*Change*/subjet[j]=orig./*Change*/subjet[i];
+                            j++;
+                        }
+                    }
+                    free(orig./*Change*/subjet);
+                    orig./*Change*/subjet=NULL;
                     break; 
                 default:
                     printf("Error in deleteElement();\n");
                     break;
                 }
+                return array;
             }
     /***************/
     /*Basics*/
