@@ -4,6 +4,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 /*to make directories*/
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -36,11 +37,11 @@
         {
             char* name;             //Obligatory
             SubjFrac* subjFrac;     //Obligatory    Fractions of a subjet
-            int subFrac_length;     //Obligatory    Number of Subjets Fractions
+            int subjFrac_length;     //Obligatory    Number of Subjets Fractions
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
         }Subjet;
 
-        /*Union with my Know My Grade Structs*/
+        /*Atruct with my Know My Grade Structs*/
         typedef struct Arrays_KMG
         {
             union{
@@ -112,14 +113,14 @@ void main(){
                     //Fractions
                     do{
                         printf("Fractions of subjets:\n");
-                        scanf("%d",&new.subFrac_length);
+                        scanf("%d",&new.subjFrac_length);
                         cleanBuffer();
-                    }while(new.subFrac_length<=0);
+                    }while(new.subjFrac_length<=0);
 
                     //Create new Fractions
-                    new.subjFrac=(SubjFrac*)malloc(sizeof(SubjFrac)*new.subFrac_length);
+                    new.subjFrac=(SubjFrac*)malloc(sizeof(SubjFrac)*new.subjFrac_length);
                     new.usedValue=0;
-                    for(int i=0; i<new.subFrac_length; i++){
+                    for(int i=0; i<new.subjFrac_length; i++){
                         new.subjFrac[i]=newSubjFrac(&new.usedValue);
                     }
                 return new;
@@ -155,7 +156,7 @@ void main(){
             Grade newGrade(){
                 printf("New grade:\n");
                 Grade new;
-                
+
                 new.grade=0;
                 printf("Grade name:\n");
                 new.name=scanString();
@@ -176,8 +177,8 @@ void main(){
                 //modelo printf("%s",t);
                 printf("%s%s\n",t,print.name);
                 //Fractions
-                printf("%s\tNumber of fractions: %d\n",t,print.subFrac_length);
-                for(int i=0; i<print.subFrac_length; i++){
+                printf("%s\tFractions(%d):\n",t,print.subjFrac_length);
+                for(int i=0; i<print.subjFrac_length; i++){
                     printcSubjFrac(print.subjFrac[i],all,(tab+2));
                 }
                 //Used Value:
@@ -190,7 +191,7 @@ void main(){
                 printf("%s%s\n",t,print.name);
                 printf("%s\tValue: %d%%\n",t,print.value);
                 if(all==1){
-                    printf("%s\tNumber of grades: %d\n",t,print.grades_length);
+                    printf("%s\tGrades(%d):\n",t,print.grades_length);
                     for(int i=0; i<print.grades_length; i++){
                         printcGrade(print.grades[i],tab+2);
                     }
@@ -234,13 +235,13 @@ void main(){
                         int pos;
                         do{
                             printf("Choose the fraction of the subject:\n");
-                            for(int i=0; i<subjet->subFrac_length; i++){
+                            for(int i=0; i<subjet->subjFrac_length; i++){
                                 printf("%i: ",i+1);
                                 printcSubjFrac(subjet->subjFrac[i],0,0);
                             }
                             scanf("%d",&pos);
                             cleanBuffer();
-                        }while(pos <= 0 || pos > (subjet->subFrac_length));
+                        }while(pos <= 0 || pos > (subjet->subjFrac_length));
                         pos--;
                         /*edit Subject fraction selected:*/
                         if(editSubjFrac(&(subjet->subjFrac[pos]))==1){
@@ -249,11 +250,11 @@ void main(){
                                 /*Copy from the pointer of subjFrac*/
                                 Arrays_KMG orig;    
                                 orig.subjFrac=subjet->subjFrac;
-                                orig.array_length=subjet->subFrac_length;
+                                orig.array_length=subjet->subjFrac_length;
                                 /*Copy the new pointer to subjFrac*/
                                 Arrays_KMG res = deleteElement(orig, subjFrac, pos);
                                 subjet->subjFrac = res.subjFrac;
-                                subjet->subFrac_length = res.array_length;
+                                subjet->subjFrac_length = res.array_length;
                         }
                         break;
 
@@ -263,10 +264,10 @@ void main(){
                             updateSubjFracValues(subjet);
                         }
                         //+1 length of the array
-                        subjet->subFrac_length++;
-                        subjet->subjFrac=(SubjFrac*)realloc(subjet->subjFrac, sizeof(SubjFrac)*(subjet->subFrac_length));
+                        subjet->subjFrac_length++;
+                        subjet->subjFrac=(SubjFrac*)realloc(subjet->subjFrac, sizeof(SubjFrac)*(subjet->subjFrac_length));
                         //getting the new element in the las position
-                        subjet->subjFrac[(subjet->subFrac_length-1)]=newSubjFrac(&(subjet->usedValue));
+                        subjet->subjFrac[(subjet->subjFrac_length-1)]=newSubjFrac(&(subjet->usedValue));
 
                         break;
                     default:
@@ -463,7 +464,7 @@ void main(){
                 void updateSubjFracValues(Subjet* subjet){
                     while(subjet->usedValue>=100){
                         subjet->usedValue=0;
-                        for(int i=0; i<(subjet->subFrac_length); i++){
+                        for(int i=0; i<(subjet->subjFrac_length); i++){
                             int yes=0;
                             printf("%s has a value of %d%%,\n"
                             "do you want to change it?\n"
@@ -536,6 +537,74 @@ void main(){
 
                 return array;
             }
+    
+        /*Files*/
+            /*ToStrings*/
+                #define IS_DEC 10
+                #define MAX_DEC 6
+                /*Subjet*/
+                char* subetToString(Subjet subjet){
+                    //Parse String
+                    char strSubjFrac_length[MAX_DEC];   //Subjet Fraction length
+                    itoa(subjet.subjFrac_length, strSubjFrac_length, IS_DEC);
+                    /*Calculate value*/
+                    char strUsedValue[MAX_DEC];         //Used Value
+                    itoa(subjet.usedValue, strUsedValue, IS_DEC);
+                    //Copy the name
+                    char name;
+                    strcpy(name, subjet.name);
+                    
+                    //Result
+                    char* res="";
+                    strcat(res,name);
+                    strcat(res,"-");
+                    strcat(res,strSubjFrac_length);
+                    strcat(res,"-");
+                    strcat(res,strUsedValue);
+                }
+                /*SubjFrac*/
+                char* subjFracToString(SubjFrac subjFrac){
+                    //Parse String
+                    char strGrades_length[MAX_DEC]; //Grades length
+                    itoa(subjFrac.grades_length, strGrades_length, IS_DEC);
+                    char strValue[MAX_DEC];         //Value
+                    itoa(subjFrac.value, strValue, IS_DEC);
+                    /*Calculate MEAN*/
+                    char strMean[MAX_DEC];          //Mean of all grades
+                    ftoa(subjFrac.mean, strMean, IS_DEC);
+
+                    //Copy the name
+                    char name;
+                    strcpy(name, subjFrac.name);
+
+                    //Result
+                    char* res="";
+                    strcat(res,name);
+                    strcat(res,"-");
+                    strcat(res,strGrades_length);
+                    strcat(res,"-");
+                    strcat(res,strValue);
+                    strcat(res,"-");
+                    strcat(res,strMean);
+
+                    return res;
+                }
+                /*Grade*/
+                char* gradeToString(Grade grade){
+                    //Parse String
+                    char strGrade[MAX_DEC];
+                    ftoa(grade.grade, strGrade, IS_DEC);
+                    //Copy the name
+                    char name;
+                    strcpy(name, grade.name);
+
+                    //Result
+                    char* res="";
+                    strcat(res,name);
+                    strcat(res,"-");
+                    strcat(res,strGrade);
+                    return res;
+                }
     /***************/
     /*Basics*/
         void cleanBuffer(){
