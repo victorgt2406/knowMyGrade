@@ -92,38 +92,54 @@
     int makeDirectory(char* nameOfDirectory);   //Creates a new directory if it doesn't exist.
 
     /*Know My Grade*/
+
         //NEW
+
         Box atomaticNewBox();
         Box newBox();
         Subjet newSubjet();
         SubjFrac newSubjFrac(int* usedValue);
         Grade newGrade();
+
         //PRINT
+
         void printcBox(Box print, int all, int tab);
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
         void printcGrade(Grade print, int tab);
+
         //EDIT
+
         int editBox(Box* box);
         int editSubjet(Subjet* subjet);
         int editSubjFrac(SubjFrac* frac);
         int editGrade(Grade* grade);
+
             //MENU
+
             int editBoxMenu();
             int editSubjetMenu();
             int editSubjFracMenu();
             int editGradeMenu();
+
             //EXTRA
+
             void updateSubjFracValues(Subjet* subjet);
         //DELETE
+
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
         //FILES
+            //MAIN
+
+            void fprintInsideBox(Box box, char* directory);
             //FPRINTS
+
             void fprintBox(char* filename, Box* box, int length);
             void fprintSubjet(char* filename, Subjet* subjet, int length);
             void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
             void fprintGrade(char* filename, Grade* grades, int length);
                 //TOSTRINGS
+
                 char* boxToString(Box box);
                 char* subjetToString(Subjet subjet);
                 char* subjFracToString(SubjFrac subjFrac);
@@ -135,12 +151,18 @@ void main(){
     printcBox(box,1,0);
     editBox(&box);
     printcBox(box,1,0);
+    int dir = makeDirectory(box.name);
+    printf("%d\n",dir);
+    fprintInsideBox(box,box.name);
 }
 
 /*FUNCTIONS*/
+    
     /*Know My Grade*/
+        
         /*NEW*/
-        /*Create a new box*/
+
+            /*Create an automatic new box. Just used the first time excuted*/
             Box atomaticNewBox(){
                 Box new;
                 //Name
@@ -156,7 +178,7 @@ void main(){
 
                 return new;
             }
-            /*Create a new box*/
+            /*Create a new box by user*/
             Box newBox(){
                 Box new;
                 printf("New box\n");
@@ -186,7 +208,7 @@ void main(){
                 new.length=0;
                 return new;
             }
-            /*Create a new subjet*/
+            /*Create a new subjet by user*/
             Subjet newSubjet(){
                 printf("New subjet:\n");
                 Subjet new;
@@ -211,7 +233,7 @@ void main(){
                     }
                 return new;
             }
-            /*Create a new subjet fraction*/
+            /*Create a new subjet fraction by user*/
             SubjFrac newSubjFrac(int* usedValue){
                 printf("New subjet fraction:\n");
                 SubjFrac new;
@@ -238,7 +260,7 @@ void main(){
 
                 return new;
             }
-            /*Create a new Grade*/
+            /*Create a new Grade by user*/
             Grade newGrade(){
                 printf("New grade:\n");
                 Grade new;
@@ -257,7 +279,8 @@ void main(){
             }
 
         /*Print in console*/
-            /*Print Box*/
+
+            /*Print Box in console*/
             void printcBox(Box print, int all, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
@@ -279,7 +302,7 @@ void main(){
                 }
                 free(t);
             }
-            /*Print Subjet*/
+            /*Print Subjet in console*/
             void printcSubjet(Subjet print, int all, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
@@ -293,7 +316,7 @@ void main(){
                 printf("%s\tUsed value: %d\n",t,print.usedValue);
                 free(t);
             }
-            /*Print Subjet Fraction*/
+            /*Print Subjet Fraction in console*/
             void printcSubjFrac(SubjFrac print, int all, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
@@ -307,15 +330,17 @@ void main(){
                 }
                 free(t);
             }
-            /*Print Grade*/
+            /*Print Grade in console*/
             void printcGrade(Grade print, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
                 printf("%sScore of %.2f in %s\n",t,print.grade,print.name);
                 free(t);
             }
+        
         /*Edit*/
-            //The pointers are for just for one element, ->
+
+            /*Edit just a pointer of BOX, *NO ARRAYS**/
             int editBox(Box* box){
                 /*
                 printf("Edit Box:\n"
@@ -416,7 +441,7 @@ void main(){
                     }
                     return delete;
                 }            
-
+            /*Edit just a pointer of SUBJET, *NO ARRAYS**/
             int editSubjet(Subjet* subjet){
                 /*
                  printf("Edit subjet:\n"
@@ -489,7 +514,7 @@ void main(){
                     }
                 return delete;
             }
-    
+            /*Edit just a pointer of a FRACTION_OF_A_SUBJET, *NO ARRAYS**/
             int editSubjFrac(SubjFrac* subjFrac){
                 /*
                 printf("Edit subjet fraccion:\n"
@@ -566,7 +591,7 @@ void main(){
                     }
                 return delete;
             }
-            
+            /*Edit just a pointer of a GRADE, *NO ARRAYS**/
             int editGrade(Grade* grade){
                 int delete=0;
                 /*
@@ -604,7 +629,10 @@ void main(){
                         break;
                     }
             }
+            
             /*Edit menu*/
+
+                /*Prints in console the edit BOX menu*/
                 int editBoxMenu(){
                     #define MAX_boxMenu 3
                     /*
@@ -636,7 +664,7 @@ void main(){
                     }while((menu < -1 && menu > MAX_boxMenu));
                     return menu;
                 }
-
+                /*Prints in console the edit SUBJET menu*/
                 int editSubjetMenu(){
                     #define MAX_editSubjetMenu 3
                     /*
@@ -661,7 +689,7 @@ void main(){
                     }while((menu < -1 && menu > MAX_editSubjetMenu));
                     return menu;
                 }
-
+                /*Prints in console the edit a FRACTION_OF_A_BOX menu*/
                 int editSubjFracMenu(){
                     #define MAX_editSubjFracMenu 5
                     /*
@@ -690,7 +718,7 @@ void main(){
                     }while((menu < -1 && menu > 3));
                     return menu;
                 }
-            
+                /*Prints in console the edit GRADE menu*/
                 int editGradeMenu(){
                     int menu=0;
                     do{
@@ -705,7 +733,10 @@ void main(){
 
                     return menu;
                 }
+            
             /*Extra*/
+
+                /*Ask the user to update the used value inside a Subjet*/
                 void updateSubjFracValues(Subjet* subjet){
                     while(subjet->usedValue>=100){
                         subjet->usedValue=0;
@@ -730,8 +761,9 @@ void main(){
                         }
                     }
                 }
-        /*Delete element in array*/
-            Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos){
+        
+        /*Delete element in an array*/
+        Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos){
                 Arrays_KMG array;
                 array.array_length = orig.array_length-1;
                 switch (e)
@@ -797,8 +829,48 @@ void main(){
             }
     
         /*Files*/
+            /*Call to print*/
+
+                /*Print in a file all data inside a Box and creates its directories*/
+                void fprintInsideBox(Box box, char* directory){
+                    //Make .txt with the content of the box
+                    int size=strlen(directory)+strlen("/")+strlen(box.name)+strlen(".txt");
+                    char* newFile=NULL;
+                    newFile=(char*)malloc(sizeof(char)*(size+1));
+                    strcpy(newFile,directory);                          
+                    strcat(newFile,"/");
+                    strcat(newFile,box.name);
+                    strcat(newFile,".txt");                   
+                    //See type
+                    if(box.type==tBox){
+                        fprintBox(newFile,box.box, box.length);
+                        printf("File %s created\n",newFile);
+                        for(int i=0; i<box.length; i++){
+                            //Copy new directory:
+                            char* newDirectory=NULL;
+                            size=strlen(directory)+strlen("/")+strlen(box.box[i].name);
+                            newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                            strcpy(newDirectory,directory);
+                            strcat(newDirectory,"/");
+                            strcat(newDirectory,box.box[i].name);
+                            //Make new directory
+                            makeDirectory(newDirectory);
+                            //Look next box
+                            fprintInsideBox(box.box[i], newDirectory);
+                        }
+                    }
+                    else if(box.type==tSubjet){
+                        printf("In a box with type subjet\n");
+                        fprintSubjet(newFile,box.subjet, box.length);
+                        printf("File %s created\n",newFile);
+                    }
+                    //free(directory);
+                    free(newFile);
+                }
+            
             /*print in Files*/
-                /*Box*/
+
+                /*Prints the data of an array of boxes inside a Box*/
                 void fprintBox(char* filename, Box* box, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -808,15 +880,16 @@ void main(){
                     }
                     else{
                         printf("%s file is updated\n",filename);
+                        fclose(f);
                     }
-                    fclose(f);
+                    
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",boxToString(box[i]));
                     }
                     fclose(f);
                 }
-                /*Subjet*/
+                /*Prints the data of an array of subjets inside a Box*/
                 void fprintSubjet(char* filename, Subjet* subjet, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -826,15 +899,20 @@ void main(){
                     }
                     else{
                         printf("%s file is updated\n",filename);
+                        fclose(f);
                     }
-                    fclose(f);
+                    
                     f = fopen(filename, "w");
+                    char* text=NULL;
                     for(int i=0; i<length; i++){
-                        fprintf(f,"%s",subjetToString(subjet[i]));
+                        text=subjetToString(subjet[i]);
+                        fprintf(f,"%s",text);
+                        free(text);
+                        text=NULL;
                     }
                     fclose(f);
                 }
-                /*SubjFrac*/
+                /*Prints the data of an array of a subjet fractions inside a Subjet*/
                 void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -844,15 +922,15 @@ void main(){
                     }
                     else{
                         printf("%s file is updated\n",filename);
+                        fclose(f);
                     }
-                    fclose(f);
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",subjFracToString(subjFrac[i]));
                     }
                     fclose(f);
                 }
-                /*Grade*/
+                /*Prints the data of an array of grades inside a Subjet_Fraction(SubjFrac)*/
                 void fprintGrade(char* filename, Grade* grades, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -862,43 +940,49 @@ void main(){
                     }
                     else{
                         printf("%s file is updated\n",filename);
+                        fclose(f);
                     }
-                    fclose(f);
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",gradeToString(grades[i]));
                     }
                     fclose(f);
                 }
+            
             /*ToStrings*/
-                #define BUFFER_SPRINTF 50
-                /*Box*/
+
+                #define BUFFER_SPRINTF 200
+                /*to string of a Box*/
                 char* boxToString(Box box){
-                #define BUFFER_SPRINTF 50
-                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
+                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
                     return res;
                 }
-                /*Subjet*/
+                /*to string of a Subjet*/
                 char* subjetToString(Subjet subjet){
-                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
+                    printf("In to string\n");
+                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
+                    printf("%s\n",res);
                     return res;          
                 }
-                /*SubjFrac*/
+                /*to string of a SubjFrac*/
                 char* subjFracToString(SubjFrac subjFrac){
-                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
+                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
                     return res;
                 }
-                /*Grade*/
+                /*to string of a Grade*/
                 char* gradeToString(Grade grade){
-                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
+                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
                     return res;
                 }
+    
     /***************/
+
     /*Basics*/
+
         void cleanBuffer(){
             while(getchar()!='\n'){
                 ;
