@@ -117,19 +117,24 @@
             void updateSubjFracValues(Subjet* subjet);
         //DELETE
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
-
         //FILES
-            //TOSTRINGS
-            char* subjetToString(Subjet subjet);
-            char* subjFracToString(SubjFrac subjFrac);
-            char* gradeToString(Grade grade);
+            //FPRINTS
+            void fprintBox(char* filename, Box* box, int length);
+            void fprintSubjet(char* filename, Subjet* subjet, int length);
+            void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
+            void fprintGrade(char* filename, Grade* grades, int length);
+                //TOSTRINGS
+                char* boxToString(Box box);
+                char* subjetToString(Subjet subjet);
+                char* subjFracToString(SubjFrac subjFrac);
+                char* gradeToString(Grade grade);
 
     
 void main(){
     Box box = atomaticNewBox();
-    printcSubjet(box.subjet[0],1,0);
-    editSubjet(&box.subjet[0]);
-    printcSubjet(box.subjet[0],1,0);
+    printcBox(box,1,0);
+    editBox(&box);
+    printcBox(box,1,0);
 }
 
 /*FUNCTIONS*/
@@ -141,7 +146,7 @@ void main(){
                 //Name
                 //new.name=(char*) malloc(sizeof(char)*strlen("Data"));
                 new.name="Data";
-                printf("%s",new.name);
+                printf("%s\n",new.name);
                 //Type
                 new.type=tSubjet;
                 //New subjet
@@ -286,6 +291,7 @@ void main(){
                 }
                 //Used Value:
                 printf("%s\tUsed value: %d\n",t,print.usedValue);
+                free(t);
             }
             /*Print Subjet Fraction*/
             void printcSubjFrac(SubjFrac print, int all, int tab){
@@ -299,12 +305,14 @@ void main(){
                         printcGrade(print.grades[i],tab+2);
                     }
                 }
+                free(t);
             }
             /*Print Grade*/
             void printcGrade(Grade print, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
                 printf("%sScore of %.2f in %s\n",t,print.grade,print.name);
+                free(t);
             }
         /*Edit*/
             //The pointers are for just for one element, ->
@@ -790,6 +798,24 @@ void main(){
     
         /*Files*/
             /*print in Files*/
+                /*Box*/
+                void fprintBox(char* filename, Box* box, int length){
+                    FILE* f;
+                    f = fopen(filename, "r");
+                    if (f == NULL)
+                    {
+                        printf("%s file is created\n",filename);
+                    }
+                    else{
+                        printf("%s file is updated\n",filename);
+                    }
+                    fclose(f);
+                    f = fopen(filename, "w");
+                    for(int i=0; i<length; i++){
+                        fprintf(f,"%s",boxToString(box[i]));
+                    }
+                    fclose(f);
+                }
                 /*Subjet*/
                 void fprintSubjet(char* filename, Subjet* subjet, int length){
                     FILE* f;
@@ -845,21 +871,29 @@ void main(){
                     fclose(f);
                 }
             /*ToStrings*/
+                #define BUFFER_SPRINTF 50
+                /*Box*/
+                char* boxToString(Box box){
+                #define BUFFER_SPRINTF 50
+                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
+                    sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
+                    return res;
+                }
                 /*Subjet*/
                 char* subjetToString(Subjet subjet){
-                    char* res=NULL;
+                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
                     return res;          
                 }
                 /*SubjFrac*/
                 char* subjFracToString(SubjFrac subjFrac){
-                    char* res=NULL;
+                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
                     return res;
                 }
                 /*Grade*/
                 char* gradeToString(Grade grade){
-                    char* res=NULL;
+                    char* res=malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
                     return res;
                 }
