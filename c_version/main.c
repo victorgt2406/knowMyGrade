@@ -41,6 +41,25 @@
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
         }Subjet;
 
+        /*Box*/
+        typedef struct Box
+        {
+            /*It works like a directoy*/
+            char* name;
+            int length; //Number of subjets or boxes
+            union{      //Box can only contains subjets or other boxes
+                Subjet* subjet;
+                struct Box* box;
+            };
+            enum type{
+                nothing,
+                tSubjet,
+                tBox,
+            }type;
+            
+        }Box;
+        
+
         /*Atruct with my Know My Grade Structs*/
         typedef struct Arrays_KMG
         {
@@ -69,6 +88,8 @@
 
     /*Know My Grade*/
         //NEW
+        Box atomaticNewBox();
+        Box newBox();
         Subjet newSubjet();
         SubjFrac newSubjFrac(int* usedValue);
         Grade newGrade();
@@ -91,16 +112,62 @@
 
     
 void main(){
-    Subjet sub = newSubjet();
-    printcSubjet(sub,1,0);
-    editSubjet(&sub);
-    printcSubjet(sub,1,0);
+    Box box = atomaticNewBox();
+    printcSubjet(box.subjet[0],1,0);
+    editSubjet(&box.subjet[0]);
+    printcSubjet(box.subjet[0],1,0);
 }
 
 /*FUNCTIONS*/
     /*Know My Grade*/
         /*NEW*/
-            /*Creates a new subjet*/
+        /*Create a new box*/
+            Box atomaticNewBox(){
+                Box new;
+                //Name
+                //new.name=(char*) malloc(sizeof(char)*strlen("Data"));
+                new.name="Data";
+                printf("%s",new.name);
+                //Type
+                new.type=tSubjet;
+                //New subjet
+                new.length=1;
+                new.subjet=(Subjet*)malloc(sizeof(Subjet));
+                new.subjet[0]=newSubjet();
+
+                return new;
+            }
+            /*Create a new box*/
+            Box newBox(){
+                Box new;
+                printf("New box\n");
+                //Input
+                printf("Box name:\n");
+                new.name=scanString();
+                new.type=nothing;
+                do{
+                    int choice=0;
+                    printf("Box save\n"
+                        "\t1.Subjetes\n"
+                        "\t2.Boxes\n");
+                    scanf("%d",&choice);
+                    //Subjet
+                    if(choice==1){
+                        new.type=tSubjet;
+                    }
+                    //box
+                    else if(choice==2){
+                        new.type=tBox;
+                    }
+                    else{
+                        new.type=nothing;
+                    }
+                }while(new.type==nothing);
+                
+                new.length=0;
+                return new;
+            }
+            /*Create a new subjet*/
             Subjet newSubjet(){
                 printf("New subjet:\n");
                 Subjet new;
@@ -125,7 +192,7 @@ void main(){
                     }
                 return new;
             }
-            /*Creates a new subjet fraction*/
+            /*Create a new subjet fraction*/
             SubjFrac newSubjFrac(int* usedValue){
                 printf("New subjet fraction:\n");
                 SubjFrac new;
@@ -152,7 +219,7 @@ void main(){
 
                 return new;
             }
-            /*Creates a new Grade*/
+            /*Create a new Grade*/
             Grade newGrade(){
                 printf("New grade:\n");
                 Grade new;
@@ -539,70 +606,25 @@ void main(){
             }
     
         /*Files*/
+            /**/
+
             /*ToStrings*/
-                #define IS_DEC 10
-                #define MAX_DEC 6
                 /*Subjet*/
-                char* subetToString(Subjet subjet){
-                    //Parse String
-                    char strSubjFrac_length[MAX_DEC];   //Subjet Fraction length
-                    itoa(subjet.subjFrac_length, strSubjFrac_length, IS_DEC);
-                    /*Calculate value*/
-                    char strUsedValue[MAX_DEC];         //Used Value
-                    itoa(subjet.usedValue, strUsedValue, IS_DEC);
-                    //Copy the name
-                    char name;
-                    strcpy(name, subjet.name);
-                    
-                    //Result
-                    char* res="";
-                    strcat(res,name);
-                    strcat(res,"-");
-                    strcat(res,strSubjFrac_length);
-                    strcat(res,"-");
-                    strcat(res,strUsedValue);
+                char* subjetToString(Subjet subjet){
+                    char* res=NULL;
+                    sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
+                    return res;          
                 }
                 /*SubjFrac*/
                 char* subjFracToString(SubjFrac subjFrac){
-                    //Parse String
-                    char strGrades_length[MAX_DEC]; //Grades length
-                    itoa(subjFrac.grades_length, strGrades_length, IS_DEC);
-                    char strValue[MAX_DEC];         //Value
-                    itoa(subjFrac.value, strValue, IS_DEC);
-                    /*Calculate MEAN*/
-                    char strMean[MAX_DEC];          //Mean of all grades
-                    ftoa(subjFrac.mean, strMean, IS_DEC);
-
-                    //Copy the name
-                    char name;
-                    strcpy(name, subjFrac.name);
-
-                    //Result
-                    char* res="";
-                    strcat(res,name);
-                    strcat(res,"-");
-                    strcat(res,strGrades_length);
-                    strcat(res,"-");
-                    strcat(res,strValue);
-                    strcat(res,"-");
-                    strcat(res,strMean);
-
+                    char* res=NULL;
+                    sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
                     return res;
                 }
                 /*Grade*/
                 char* gradeToString(Grade grade){
-                    //Parse String
-                    char strGrade[MAX_DEC];
-                    ftoa(grade.grade, strGrade, IS_DEC);
-                    //Copy the name
-                    char name;
-                    strcpy(name, grade.name);
-
-                    //Result
-                    char* res="";
-                    strcat(res,name);
-                    strcat(res,"-");
-                    strcat(res,strGrade);
+                    char* res=NULL;
+                    sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
                     return res;
                 }
     /***************/
