@@ -47,15 +47,18 @@
             /*It works like a directoy*/
             char* name;
             int length; //Number of subjets or boxes
-            union{      //Box can only contains subjets or other boxes
-                Subjet* subjet;
-                struct Box* box;
-            };
+
             enum type{
                 nothing,
                 tSubjet,
                 tBox,
             }type;
+
+            union{      //Box can only contains subjets or other boxes
+                Subjet* subjet;
+                struct Box* box;
+            };
+            
             
         }Box;
         
@@ -67,6 +70,7 @@
                 Grade* grade;
                 SubjFrac* subjFrac;
                 Subjet* subjet;
+                Box* box;
             };
             int array_length;         
         }Arrays_KMG;
@@ -76,6 +80,7 @@
                 grade,
                 subjFrac,
                 subjet,
+                BoxKMG,
         }Enum_KMG;
         
 
@@ -94,21 +99,30 @@
         SubjFrac newSubjFrac(int* usedValue);
         Grade newGrade();
         //PRINT
+        void printcBox(Box print, int all, int tab);
         void printcSubjet(Subjet print, int all, int tab);
         void printcSubjFrac(SubjFrac print, int all, int tab);
         void printcGrade(Grade print, int tab);
         //EDIT
+        int editBox(Box* box);
         int editSubjet(Subjet* subjet);
         int editSubjFrac(SubjFrac* frac);
         int editGrade(Grade* grade);
             //MENU
-            int editSubjFracMenu();
+            int editBoxMenu();
             int editSubjetMenu();
+            int editSubjFracMenu();
             int editGradeMenu();
             //EXTRA
             void updateSubjFracValues(Subjet* subjet);
         //DELETE
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
+
+        //FILES
+            //TOSTRINGS
+            char* subjetToString(Subjet subjet);
+            char* subjFracToString(SubjFrac subjFrac);
+            char* gradeToString(Grade grade);
 
     
 void main(){
@@ -238,6 +252,28 @@ void main(){
             }
 
         /*Print in console*/
+            /*Print Box*/
+            void printcBox(Box print, int all, int tab){
+                char* t=strTabs(tab);
+                //modelo printf("%s",t);
+                printf("%s%s\n",t,print.name);
+                free(t);
+                t=NULL;
+                t=strTabs(tab+1);
+                if(print.type == tSubjet){
+                    printf("%sSubjets(%d)\n",t,print.length);
+                    for(int i=0; i<print.length; i++){
+                        printcSubjet(print.subjet[i],all,(tab+2));
+                    }
+                }
+                else{
+                    printf("%sBoxes(%d)\n",t,print.length);
+                    for(int i=0; i<print.length; i++){
+                        printcBox(print.box[i],all,(tab+2));
+                    }
+                }
+                free(t);
+            }
             /*Print Subjet*/
             void printcSubjet(Subjet print, int all, int tab){
                 char* t=strTabs(tab);
@@ -264,13 +300,115 @@ void main(){
                     }
                 }
             }
-    
+            /*Print Grade*/
             void printcGrade(Grade print, int tab){
                 char* t=strTabs(tab);
                 //modelo printf("%s",t);
                 printf("%sScore of %.2f in %s\n",t,print.grade,print.name);
             }
         /*Edit*/
+            //The pointers are for just for one element, ->
+            int editBox(Box* box){
+                /*
+                printf("Edit Box:\n"
+                    "\t1.Edit name\n"
+                    "\t2.Edit subjets or boxes\n"
+                    "\n\t3.New subjet or box\n"
+                    "\n\t0.Exit\n"
+                    "\t-1.Delete\n");
+                */
+                printf("%s -> ",box->name);
+                int menu = editBoxMenu();
+                int delete=0;
+                switch (menu)
+                {
+                    case /*delete*/-1:
+                        delete=1;
+                        break;
+                    case /*exit*/0:
+                        printf("Exit from edit Subjet menu\n");
+                        break;
+                    case /*edit name*/1:
+                        printf("Edit name:\n");
+                        free(box->name);
+                        box->name=NULL;
+                        box->name=scanString();
+                        break;
+                    case /*edit Boxes or Subjets*/2:;
+                        int pos;
+                        do{
+                            
+                            if(box->type==tSubjet){
+                                printf("Choose the Subjet:\n");
+                                for(int i=0; i<box->length; i++){
+                                    printf("%i: ",i+1);
+                                    printcSubjet(box->subjet[i],0,0);
+                                }
+                            }
+                            else{
+                               printf("Choose the Box:\n");
+                                for(int i=0; i<box->length; i++){
+                                    printf("%i: ",i+1);
+                                    printcBox(box->box[i],0,0);
+                                } 
+                            }
+                            scanf("%d",&pos);
+                            cleanBuffer();
+                        }while(pos <= 0 || pos > (box->length));
+                        pos--;
+                        /*edit Subject fraction selected:*/
+                        if(box->type==tSubjet){
+                            if(editSubjet(&(box->subjet[pos]))==1){
+                                printf("%s has been deleted\n",box->subjet[pos].name);
+                                /*In case of delete*/
+                                    /*Copy from the pointer of subjFrac*/
+                                    Arrays_KMG orig;    
+                                    orig.subjet=box->subjet;
+                                    orig.array_length=box->length;
+                                    /*Copy the new pointer to subjFrac*/
+                                    Arrays_KMG res = deleteElement(orig, subjet, pos);
+                                    box->subjet = res.subjet;
+                                    box->length = res.array_length;
+                            }
+                        }
+                        else{
+                            if(editBox(&(box->box[pos]))==1){
+                                printf("%s has been deleted\n",box->subjet[pos].name);
+                                /*In case of delete*/
+                                    /*Copy from the pointer of subjFrac*/
+                                    Arrays_KMG orig;    
+                                    orig.box=box->box;
+                                    orig.array_length=box->length;
+                                    /*Copy the new pointer to subjFrac*/
+                                    Arrays_KMG res = deleteElement(orig, BoxKMG, pos);
+                                    box->subjet = res.subjet;
+                                    box->length = res.array_length;
+                            }
+                        }
+                        break;
+                    
+                    case /*New box or Subjet*/3:
+                        //+1 length of the array
+                        box->length++;
+                        if(box->type==tSubjet){
+                            box->subjet=(Subjet*)realloc(box->subjet, sizeof(Subjet)*(box->length));
+                            //getting the new element in the las position
+                            box->subjet[(box->length-1)]=newSubjet();
+                        }
+                        else{
+                            box->box=(Box*)realloc(box->box, sizeof(Box)*(box->length));
+                            //getting the new element in the las position
+                            box->box[(box->length-1)]=newBox();
+                        }
+                        break;
+                    
+                    default:
+                        printf("Error in editBox();\n");
+                        break;
+                    }
+                    return delete;
+                }            
+
             int editSubjet(Subjet* subjet){
                 /*
                  printf("Edit subjet:\n"
@@ -459,6 +597,38 @@ void main(){
                     }
             }
             /*Edit menu*/
+                int editBoxMenu(){
+                    #define MAX_boxMenu 3
+                    /*
+                    typedef struct Box
+                    {
+                        char* name;
+                        int length; //Number of subjets or boxes
+                        enum type{
+                            nothing,
+                            tSubjet,
+                            tBox,
+                        }type;
+                        union{      //Box can only contains subjets or other boxes
+                            Subjet* subjet;
+                            struct Box* box;
+                        };
+                    }Box;
+                    */
+                    int menu=-2;
+                    do{
+                        printf("Edit Box:\n"
+                            "\t1.Edit name\n"
+                            "\t2.Edit subjets or boxes\n"
+                            "\n\t3.New subjet or box\n"
+                            "\n\t0.Exit\n"
+                            "\t-1.Delete\n");
+                        scanf("%d",&menu);
+                        cleanBuffer();                    
+                    }while((menu < -1 && menu > MAX_boxMenu));
+                    return menu;
+                }
+
                 int editSubjetMenu(){
                     #define MAX_editSubjetMenu 3
                     /*
@@ -596,6 +766,19 @@ void main(){
                     }
                     free(orig./*Change*/subjet);
                     orig./*Change*/subjet=NULL;
+                    break;
+                case BoxKMG:
+                    array./*Change*/box = (/*Change*/Box*)malloc(sizeof(/*Change*/Box)*(array.array_length));
+                    j=0; //j-array counter
+                    for(int i=0; i<orig.array_length; i++){
+                        //i-orig counter
+                        if(i!=arrayPos){
+                            array./*Change*/box[j]=orig./*Change*/box[i];
+                            j++;
+                        }
+                    }
+                    free(orig./*Change*/box);
+                    orig./*Change*/box=NULL;
                     break; 
                 default:
                     printf("Error in deleteElement();\n");
@@ -606,8 +789,61 @@ void main(){
             }
     
         /*Files*/
-            /**/
-
+            /*print in Files*/
+                /*Subjet*/
+                void fprintSubjet(char* filename, Subjet* subjet, int length){
+                    FILE* f;
+                    f = fopen(filename, "r");
+                    if (f == NULL)
+                    {
+                        printf("%s file is created\n",filename);
+                    }
+                    else{
+                        printf("%s file is updated\n",filename);
+                    }
+                    fclose(f);
+                    f = fopen(filename, "w");
+                    for(int i=0; i<length; i++){
+                        fprintf(f,"%s",subjetToString(subjet[i]));
+                    }
+                    fclose(f);
+                }
+                /*SubjFrac*/
+                void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length){
+                    FILE* f;
+                    f = fopen(filename, "r");
+                    if (f == NULL)
+                    {
+                        printf("%s file is created\n",filename);
+                    }
+                    else{
+                        printf("%s file is updated\n",filename);
+                    }
+                    fclose(f);
+                    f = fopen(filename, "w");
+                    for(int i=0; i<length; i++){
+                        fprintf(f,"%s",subjFracToString(subjFrac[i]));
+                    }
+                    fclose(f);
+                }
+                /*Grade*/
+                void fprintGrade(char* filename, Grade* grades, int length){
+                    FILE* f;
+                    f = fopen(filename, "r");
+                    if (f == NULL)
+                    {
+                        printf("%s file is created\n",filename);
+                    }
+                    else{
+                        printf("%s file is updated\n",filename);
+                    }
+                    fclose(f);
+                    f = fopen(filename, "w");
+                    for(int i=0; i<length; i++){
+                        fprintf(f,"%s",gradeToString(grades[i]));
+                    }
+                    fclose(f);
+                }
             /*ToStrings*/
                 /*Subjet*/
                 char* subjetToString(Subjet subjet){
