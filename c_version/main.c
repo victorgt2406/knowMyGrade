@@ -144,6 +144,10 @@
             void fprintSubjet(char* filename, Subjet* subjet, int length);
             void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
             void fprintGrade(char* filename, Grade* grades, int length);
+
+            //EXTRA
+            
+            void deleteDataDir();
                 
         //TOSTRINGS
 
@@ -158,6 +162,7 @@ void main(){
     printcBox(box,1,0);
     editBox(&box);
     printcBox(box,1,0);
+    deleteDataDir();
     int dir = makeDirectory(box.name);
     printf("%d\n",dir);
     fprintInsideBox(box,box.name);
@@ -169,7 +174,7 @@ void main(){
         
         /*NEW*/
 
-            /*Create an automatic new box. Just used the first time excuted*/
+            /*Create an automatic new box. Just used the first time executed*/
             Box atomaticNewBox(){
                 Box new;
                 //Name
@@ -354,6 +359,7 @@ void main(){
                     "\t1.Edit name\n"
                     "\t2.Edit subjets or boxes\n"
                     "\n\t3.New subjet or box\n"
+                    "\n\t4.Move all this data to a new parent box\n"
                     "\n\t0.Exit\n"
                     "\t-1.Delete\n");
                 */
@@ -439,6 +445,39 @@ void main(){
                             box->box=(Box*)realloc(box->box, sizeof(Box)*(box->length));
                             //getting the new element in the las position
                             box->box[(box->length-1)]=newBox();
+                        }
+                        break;
+
+                    case /*Move data to a parent new box*/4:;
+                        if(box->type==tBox){
+                            //Input data of new box
+                            Box newBox;
+                            printf("Name for the parent new Box:\n");
+                            newBox.name = scanString();
+                            newBox.type = tBox;
+                            newBox.box = box->box;
+                            newBox.length = box->length;
+                            //Update the box data
+                            box->box=NULL;
+                            box->length=1;
+                            box->box=(Box*)malloc(sizeof(Box)*box->length);
+                            box->box[0]=newBox;
+                        }
+                        else{
+                            //Input data of new box
+                            Box newBox;
+                            printf("Name for the parent new Box:\n");
+                            newBox.name = scanString();
+                            newBox.type = tSubjet;
+                            newBox.subjet = box->subjet;
+                            newBox.length = box->length;
+                            //Update the box data
+                            box->subjet=NULL;
+                            box->type=tBox;//parse to type box
+                            box->box=NULL;
+                            box->length=1;
+                            box->box=(Box*)malloc(sizeof(Box)*box->length);
+                            box->box[0]=newBox;
                         }
                         break;
                     
@@ -641,7 +680,7 @@ void main(){
 
                 /*Prints in console the edit BOX menu*/
                 int editBoxMenu(){
-                    #define MAX_boxMenu 3
+                    #define MAX_boxMenu 4
                     /*
                     typedef struct Box
                     {
@@ -664,6 +703,7 @@ void main(){
                             "\t1.Edit name\n"
                             "\t2.Edit subjets or boxes\n"
                             "\n\t3.New subjet or box\n"
+                            "\n\t4.Move all this data to a new parent box\n"
                             "\n\t0.Exit\n"
                             "\t-1.Delete\n");
                         scanf("%d",&menu);
@@ -851,7 +891,6 @@ void main(){
                     //See type
                     if(box.type==tBox){
                         fprintBox(newFile,box.box, box.length);
-                        printf("File %s created\n",newFile);
                         for(int i=0; i<box.length; i++){
                             //Copy new directory:
                             char* newDirectory=NULL;
@@ -869,7 +908,6 @@ void main(){
                     }
                     else if(box.type==tSubjet){
                         fprintSubjet(newFile,box.subjet, box.length);
-                        printf("File %s created\n",newFile);
                         for(int i=0; i<box.length; i++){
                             //Copy new directory:
                             char* newDirectory=NULL;
@@ -901,7 +939,6 @@ void main(){
                     strcat(newFile,".txt");
                     
                     fprintSubjFrac(newFile,subjet.subjFrac, subjet.subjFrac_length);    //Create file
-                    printf("File %s created\n",newFile);
                     //loop for subjet.subjFrac array pointer
                     for(int i=0; i<subjet.subjFrac_length; i++){
                         //Copy new directory:
@@ -1017,6 +1054,12 @@ void main(){
                     fclose(f);
                 }
             
+            /*EXTRA*/
+
+                /*delete main directory*/
+                void deleteDataDir(){
+                    system("rm -d -r Data");
+                }
         /*ToStrings*/
 
             #define BUFFER_SPRINTF 200
@@ -1028,10 +1071,8 @@ void main(){
             }
             /*to string of a Subjet*/
             char* subjetToString(Subjet subjet){
-                printf("In to string\n");
                 char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                 sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
-                printf("%s\n",res);
                 return res;          
             }
             /*to string of a SubjFrac*/
