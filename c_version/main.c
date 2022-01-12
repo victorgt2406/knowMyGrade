@@ -125,25 +125,32 @@
             //EXTRA
 
             void updateSubjFracValues(Subjet* subjet);
+
         //DELETE
 
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
+
         //FILES
+
             //MAIN
 
             void fprintInsideBox(Box box, char* directory);
+            void fprintInsideSubjet(Subjet subjet, char* directory);
+            void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory);
+
             //FPRINTS
 
             void fprintBox(char* filename, Box* box, int length);
             void fprintSubjet(char* filename, Subjet* subjet, int length);
             void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
             void fprintGrade(char* filename, Grade* grades, int length);
-                //TOSTRINGS
+                
+        //TOSTRINGS
 
-                char* boxToString(Box box);
-                char* subjetToString(Subjet subjet);
-                char* subjFracToString(SubjFrac subjFrac);
-                char* gradeToString(Grade grade);
+        char* boxToString(Box box);
+        char* subjetToString(Subjet subjet);
+        char* subjFracToString(SubjFrac subjFrac);
+        char* gradeToString(Grade grade);
 
     
 void main(){
@@ -857,17 +864,78 @@ void main(){
                             makeDirectory(newDirectory);
                             //Look next box
                             fprintInsideBox(box.box[i], newDirectory);
+                            free(newDirectory);
                         }
                     }
                     else if(box.type==tSubjet){
-                        printf("In a box with type subjet\n");
                         fprintSubjet(newFile,box.subjet, box.length);
                         printf("File %s created\n",newFile);
+                        for(int i=0; i<box.length; i++){
+                            //Copy new directory:
+                            char* newDirectory=NULL;
+                            size=strlen(directory)+strlen("/")+strlen(box.subjet[i].name);
+                            newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                            strcpy(newDirectory,directory);
+                            strcat(newDirectory,"/");
+                            strcat(newDirectory,box.subjet[i].name);
+                            //Make new directory
+                            makeDirectory(newDirectory);
+                            //Look next box
+                            fprintInsideSubjet(box.subjet[i], newDirectory);
+                            //free
+                            free(newDirectory);
+                            newDirectory=NULL;
+                        }
                     }
-                    //free(directory);
                     free(newFile);
                 }
-            
+                /*Print in a file all data inside a Subjet with its directories of subjet fraction*/
+                void fprintInsideSubjet(Subjet subjet, char* directory){
+                    //Make .txt with the content of the Subjet
+                    int size=strlen(directory)+strlen("/")+strlen(subjet.name)+strlen(".txt");
+                    char* newFile=NULL;
+                    newFile=(char*)malloc(sizeof(char)*(size+1));
+                    strcpy(newFile,directory);                          
+                    strcat(newFile,"/");
+                    strcat(newFile,subjet.name);
+                    strcat(newFile,".txt");
+                    
+                    fprintSubjFrac(newFile,subjet.subjFrac, subjet.subjFrac_length);    //Create file
+                    printf("File %s created\n",newFile);
+                    //loop for subjet.subjFrac array pointer
+                    for(int i=0; i<subjet.subjFrac_length; i++){
+                        //Copy new directory:
+                        char* newDirectory=NULL;
+                        size=strlen(directory)+strlen("/")+strlen(subjet.subjFrac[i].name);
+                        newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                        strcpy(newDirectory,directory);
+                        strcat(newDirectory,"/");
+                        strcat(newDirectory,subjet.subjFrac[i].name);
+                        //Make new directory
+                        makeDirectory(newDirectory);
+                        //Go to Subjt Frac
+                        fprintInsideSubjFrac(subjet.subjFrac[i],newDirectory);
+                        //free
+                        free(newDirectory);
+                        newDirectory=NULL;
+                    }
+                    free(newFile);
+                }
+                /*Print in a file all grades data in .txt with the name of the Subjet Fraction*/
+                void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory){
+                    //Make .txt with the content of the box
+                    int size=strlen(directory)+strlen("/")+strlen(subjFrac.name)+strlen(".txt");
+                    char* newFile=NULL;
+                    newFile=(char*)malloc(sizeof(char)*(size+1));
+                    strcpy(newFile,directory);                          
+                    strcat(newFile,"/");
+                    strcat(newFile,subjFrac.name);
+                    strcat(newFile,".txt");
+
+                    fprintGrade(newFile,subjFrac.grades, subjFrac.grades_length);
+                    free(newFile);
+                }
+
             /*print in Files*/
 
                 /*Prints the data of an array of boxes inside a Box*/
@@ -949,31 +1017,31 @@ void main(){
                     fclose(f);
                 }
             
-            /*ToStrings*/
+        /*ToStrings*/
 
-                #define BUFFER_SPRINTF 200
-                /*to string of a Box*/
-                char* boxToString(Box box){
-                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                    sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
-                    return res;
-                }
-                /*to string of a Subjet*/
-                char* subjetToString(Subjet subjet){
-                    printf("In to string\n");
-                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                    sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
-                    printf("%s\n",res);
-                    return res;          
-                }
-                /*to string of a SubjFrac*/
-                char* subjFracToString(SubjFrac subjFrac){
-                    char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                    sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
-                    return res;
-                }
-                /*to string of a Grade*/
-                char* gradeToString(Grade grade){
+            #define BUFFER_SPRINTF 200
+            /*to string of a Box*/
+            char* boxToString(Box box){
+                char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
+                sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
+                return res;
+            }
+            /*to string of a Subjet*/
+            char* subjetToString(Subjet subjet){
+                printf("In to string\n");
+                char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
+                sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
+                printf("%s\n",res);
+                return res;          
+            }
+            /*to string of a SubjFrac*/
+            char* subjFracToString(SubjFrac subjFrac){
+                char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
+                sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
+                return res;
+            }
+            /*to string of a Grade*/
+            char* gradeToString(Grade grade){
                     char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
                     sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
                     return res;
