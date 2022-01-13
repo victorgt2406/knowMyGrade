@@ -24,7 +24,6 @@
                              *-Pointer 3: Word (Character)*/
             int row;        //Number of rows
             int* col;       //Number of columns per row
-            int col_len;    //Length of array col
             int** len;      //String len per row & column
         }RowColumnStr;
         
@@ -158,12 +157,14 @@
             //READ FILES
 
             RowColumnStr fileToStr(FILE* f, char delimiter);
+            void printcRowColStr(RowColumnStr str);
             void freeRowColStr();
             
             //WRITE
 
                 //MAIN
 
+                void fprintMainBox(Box main);
                 void fprintInsideBox(Box box, char* directory);
                 void fprintInsideSubjet(Subjet subjet, char* directory);
                 void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory);
@@ -188,14 +189,19 @@
 
     
 void main(){
-    Box box = atomaticNewBox();
+    Box box = fscanMainBox();
+    //If there are not files
+    if(box.type == nothing){
+        box = atomaticNewBox();
+    }
     printcBox(box,1,0);
     editBox(&box);
-    printcBox(box,1,0);
+    //Delete data in directory:
     deleteDataDir();
-    int dir = makeDirectory(box.name);
-    printf("%d\n",dir);
-    fprintInsideBox(box,box.name);
+    //Create directory:
+    makeDirectory(box.name);
+    //Save main box.
+    fprintMainBox(box);
 }
 
 /*FUNCTIONS*/
@@ -234,6 +240,7 @@ void main(){
                         "\t1.Subjetes\n"
                         "\t2.Boxes\n");
                     scanf("%d",&choice);
+                    cleanBuffer();
                     //Subjet
                     if(choice==1){
                         new.type=tSubjet;
@@ -629,28 +636,30 @@ void main(){
 
                     case /*edit grades*/ 3:;
                         int pos=0;
-                        do{
-                            printf("Choose the fraction of the subject:\n");
-                            for(int i=0; i<subjFrac->grades_length; i++){
-                                printf("\t%i: ",i+1);
-                                printcGrade(subjFrac->grades[i],0);
-                            }
-                            scanf("%d",&pos);
-                            cleanBuffer();
-                        }while(pos <= 0 || pos > (subjFrac->grades_length));
-                        if(editGrade(subjFrac->grades)==1){
-                            /*Delete*/
-                            printf("%s has been deleted\n",subjFrac->grades[pos].name);
-                            /*In case of delete*/
-                                /*Copy from the pointer of grades*/
-                                Arrays_KMG orig;    
-                                orig.grade=subjFrac->grades;
-                                orig.array_length=subjFrac->grades_length;
-                                /*Copy the new pointer to grades*/
-                                Arrays_KMG res = deleteElement(orig, grade, pos);
-                                subjFrac->grades = res.grade;
-                                subjFrac->grades_length = res.array_length;
+                        if(subjFrac->grades_length > 0){
+                            do{
+                                printf("Choose the grade:\n");
+                                for(int i=0; i<subjFrac->grades_length; i++){
+                                    printf("\t%i: ",i+1);
+                                    printcGrade(subjFrac->grades[i],0);
+                                }
+                                scanf("%d",&pos);
+                                cleanBuffer();
+                            }while(pos <= 0 || pos > (subjFrac->grades_length));
+                            if(editGrade(subjFrac->grades)==1){
+                                /*Delete*/
+                                printf("%s has been deleted\n",subjFrac->grades[pos].name);
+                                /*In case of delete*/
+                                    /*Copy from the pointer of grades*/
+                                    Arrays_KMG orig;    
+                                    orig.grade=subjFrac->grades;
+                                    orig.array_length=subjFrac->grades_length;
+                                    /*Copy the new pointer to grades*/
+                                    Arrays_KMG res = deleteElement(orig, grade, pos);
+                                    subjFrac->grades = res.grade;
+                                    subjFrac->grades_length = res.array_length;
 
+                            }
                         }
 
                     case /*new grade*/4:;
@@ -910,16 +919,16 @@ void main(){
 
                 /*Parse all files in a box*/
                 Box fscanMainBox(){
+                    Box main;
                     FILE* f;
                     f = fopen(mainFileName, "r");
                     if (f == NULL)
                     {
                         printf("%s is not created\n",mainFileName);
+                        main.type=nothing;
                     }
                     else{
-                        printf("Reading data in %s \n",mainFileName);
                         RowColumnStr file = fileToStr(f,'-');
-                        Box main;
                         char* name = (char*)malloc(sizeof(char)*strlen(file.str[0][0]));
                         strcpy(name, file.str[0][0]);
                         main.name = name;
@@ -938,10 +947,19 @@ void main(){
                             free(filename);
                         }
                         else{
-                            //main.subjet
+                            int size=strlen(mainDirName)+strlen("/")+strlen(main.name)+strlen(".txt");
+                            char* filename=NULL;
+                            filename=(char*)malloc(sizeof(char)*(size+1));
+                            strcpy(filename,mainDirName);                          
+                            strcat(filename,"/");
+                            strcat(filename,main.name);
+                            strcat(filename,".txt");
+                            main.subjet = fscanSubjet(mainDirName,filename);
+                            free(filename);
                         }
-                        
+                        printf("All data required read\n");
                     }
+                    return main;
                 }
                 /*Read Box file*/
                 Box* fscanBox(char* directory, char* filename){
@@ -991,7 +1009,27 @@ void main(){
                                         free(newFilename);
                                     }
                                     else if(box[i].type == tSubjet){
+                                        /*NEW DIRECTORY*/
+                                        int size=strlen(directory)+strlen("/")+strlen(box[i].name);
+                                        char* newDirectory=NULL;
+                                        newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                                        strcpy(newDirectory,directory); 
+                                        strcat(newDirectory,"/");
+                                        strcat(newDirectory,box[i].name);
 
+                                        /*NEW FILE NAME*/
+                                        size=strlen(newDirectory)+strlen("/")+strlen(box[i].name)+strlen(".txt");
+                                        char* newFilename=NULL;
+                                        newFilename=(char*)malloc(sizeof(char)*(size+1));
+                                        strcpy(newFilename,newDirectory);                          
+                                        strcat(newFilename,"/");
+                                        strcat(newFilename,box[i].name);
+                                        strcat(newFilename,".txt");
+                                        box[i].subjet = fscanSubjet(newDirectory, newFilename);
+
+                                        /*Frees*/
+                                        free(newDirectory);
+                                        free(newFilename);
                                     }
                                 }
                                 
@@ -999,6 +1037,7 @@ void main(){
                             }
                         }
                     }
+                    return box;
                 }
                 /*Read Subjet file*/
                 Subjet* fscanSubjet(char* directory, char* filename){
@@ -1049,6 +1088,7 @@ void main(){
                             }
                         }
                     }
+                    return subjet;
                 }
                 /*Read Subjet Fraction file*/
                 SubjFrac* fscanSubjFrac(char* directory, char* filename){
@@ -1103,6 +1143,7 @@ void main(){
                             }
                         }
                     }
+                    return subjFrac;
                 }
                 /*Read Grade file*/
                 Grade* fscanGrade(char* directory, char* filename){
@@ -1139,10 +1180,10 @@ void main(){
                     rewind(f);
                     RowColumnStr res;
                     char*** str;
-                    res.col_len=1;//counter col[]
                     res.col=(int*)malloc(sizeof(int));
                     res.len=(int**)malloc(sizeof(int*));
                     res.len[0]=(int*)malloc(sizeof(int));
+
                     int row=0, col=0, len=0;
                     
                     str=(char***)malloc(sizeof(char**)*(row+1));
@@ -1154,51 +1195,61 @@ void main(){
                     while(aux!=EOF){
                         
                         aux = getc(f);
-                        if(aux=='\n'){//New row -> Strings
-                            str[row][col][len]='\0';
+                        if(aux=='\n' || aux == EOF){//New row -> Strings
                             /*Save counters*/
                             res.col[row]=col+1;     //Save number of columns per row
-                            res.len[row][col]=len+1;//Save number of characters per column
+                            res.len[row][col]=len;  //Save number of characters per column
                             /*Restart caracters*/
-                            len=0;
-                            col=0;
-                            row++;
-                            /*Memory necesary to work*/
-                            str=(char***)realloc(str,sizeof(char**)*(row+1));
-                            str[row]=(char**)realloc(str[row],sizeof(char*)*(col+1));
-                            str[row][col]=(char*)realloc(str[row],sizeof(char*)*(len+1));
-                            /*Memory of counters*/
-                            res.col=(int*)realloc(res.col,sizeof(int)*(row+1));
-                            res.len=(int**)realloc(res.len,sizeof(int*)*(row+1));
+                            if(aux=='\n'){
+                                len=0;
+                                col=0;
+                                row++;
+                                /*Memory necesary to work*/
+                                str=(char***)realloc(str,sizeof(char**)*(row+1));   //add a row
+                                str[row]=(char**)malloc(sizeof(char*)*(col+1));     //Inizialize column
+                                str[row][col]=(char*)malloc(sizeof(char*)*(len+2)); //Inizialize str
+                                /*Memory of counters*/
+                                res.col=(int*)realloc(res.col,sizeof(int)*(row+1));
+                                res.len=(int**)realloc(res.len,sizeof(int*)*(row+1));//add row in len counter
+                                res.len[row]=(int*)malloc(sizeof(int)*(col+1));     //Inizialize len row column in new row
+                            }
                         }
                         else if(aux==delimiter){//New column ->  String
-                            str[row][col][len]='\0';
+                            //printf("%s\n",str[row][col]);
                             /*Save counters*/
-                            res.len[row][col]=len+1;//Save number of characters per column
+                            res.len[row][col]=len;//Save number of characters per column
                             /*Restart caracters*/
                             len=0;
                             col++;
                             /*Memory necesary to work*/
-                            str[row]=(char**)realloc(str[row],sizeof(char*)*(col+1));
-                            str[row][col]=(char*)realloc(str[row],sizeof(char*)*(len+1));
+                            str[row]=(char**)realloc(str[row],sizeof(char*)*(col+1));       //add column
+                            str[row][col]=(char*)malloc(sizeof(char*)*(len+2));             //Inizialize str
                             /*Memory of counters*/
-                            res.len[row]=(int*)realloc(res.len,sizeof(int)*(col+1));
+                            res.len[row]=(int*)realloc(res.len[row],sizeof(int)*(col+1));   //add colum to len counter
                         }
-                        else if(aux==EOF){
-                            str[row][col][len]='\0';
-                        }
-                        else{//New caracter -> char
+                        else if(aux != EOF){//New caracter -> char
                             str[row][col][len]=aux;
+                            str[row][col][len+1]='\0';
                             
                             len++;
                             /*Memory necesary to work*/
-                            str[row][col]=(char*)realloc(str[row][col],sizeof(char)*(len+1));
+                            str[row][col]=(char*)realloc(str[row][col],sizeof(char)*(len+2));
                         }
                     }
                     res.row=row+1;
                     res.str=str;
-
                     return res;
+                }
+                /*Print rowColumStr*/
+                void printcRowColStr(RowColumnStr str){
+                    printf("Rows: %d\n",str.row);
+                    for(int i=0; i<str.row; i++){
+                        printf("Column: %d in row: %d\n",str.col[i],i);
+                        for(int j=0; j<str.col[i]; j++){
+                            printf("%s ",str.str[i][j]);
+                        }
+                        printf("\n");
+                    }
                 }
                 /*Free everything of RowColumnStr*/
                 void freeRowColStr(RowColumnStr data){
@@ -1214,6 +1265,13 @@ void main(){
                 }
             /*Call to write*/
 
+                void fprintMainBox(Box main){
+                    Box* box = (Box*)malloc(sizeof(Box));
+                    box[0]=main;
+                    fprintBox(mainFileName,box,1);
+                    fprintInsideBox(main, main.name);
+                    free(box);
+                }
                 /*Write in a file all data inside a Box and creates its directories*/
                 void fprintInsideBox(Box box, char* directory){
                     //Make .txt with the content of the box
@@ -1327,6 +1385,9 @@ void main(){
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",boxToString(box[i]));
+                        if(!(i>=length-1)){
+                            fprintf(f,"\n");
+                        }
                     }
                     fclose(f);
                 }
@@ -1344,12 +1405,11 @@ void main(){
                     }
                     
                     f = fopen(filename, "w");
-                    char* text=NULL;
                     for(int i=0; i<length; i++){
-                        text=subjetToString(subjet[i]);
-                        fprintf(f,"%s",text);
-                        free(text);
-                        text=NULL;
+                        fprintf(f,"%s",subjetToString(subjet[i]));
+                        if(!(i>=length-1)){
+                            fprintf(f,"\n");
+                        }
                     }
                     fclose(f);
                 }
@@ -1368,6 +1428,9 @@ void main(){
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",subjFracToString(subjFrac[i]));
+                         if(!(i>=length-1)){
+                            fprintf(f,"\n");
+                        }
                     }
                     fclose(f);
                 }
@@ -1386,6 +1449,9 @@ void main(){
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
                         fprintf(f,"%s",gradeToString(grades[i]));
+                        if(!(i>=length-1)){
+                            fprintf(f,"\n");
+                        }
                     }
                     fclose(f);
                 }
@@ -1402,25 +1468,25 @@ void main(){
             /*to string of a Box*/
             char* boxToString(Box box){
                 char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
+                sprintf(res,"%s-%d-%d",box.name,box.length,box.type);
                 return res;
             }
             /*to string of a Subjet*/
             char* subjetToString(Subjet subjet){
                 char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
+                sprintf(res,"%s-%d-%d",subjet.name,subjet.subjFrac_length,subjet.usedValue);
                 return res;          
             }
             /*to string of a SubjFrac*/
             char* subjFracToString(SubjFrac subjFrac){
                 char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
+                sprintf(res,"%s-%d-%d-%.3f",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
                 return res;
             }
             /*to string of a Grade*/
             char* gradeToString(Grade grade){
                     char* res=(char*)malloc(sizeof(char)*BUFFER_SPRINTF);
-                    sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
+                    sprintf(res,"%s-%.3f",grade.name,grade.grade);
                     return res;
                 }
     

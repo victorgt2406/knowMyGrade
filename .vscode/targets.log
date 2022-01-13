@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jan 12 19:28:20 2022
+# Make data base, printed on Thu Jan 13 18:12:41 2022
 
 # Variables
 
@@ -57,7 +57,7 @@ PATH = /home/vic/.vscode-server/bin/899d46d82c4c95423fb7e10e68eba52050e30ba3/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-244b9d51-cde3-41a7-be1f-6f61cd907717.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-15f3390f-3267-47c3-82cd-efd6690d7e87.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -71,7 +71,7 @@ PWD = /mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/11_interop
+WSL_INTEROP = /run/WSL/2232_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/server/remoteExtensionHostProcess
 # environment
@@ -215,6 +215,6 @@ GNUmakefile:
 # strcache performance: lookups = 17 / hit rate = 17%
 # hash-table stats:
 # Load=14/8192=0%, Rehash=0, Collisions=1/17=6%
-# Finished Make data base on Wed Jan 12 19:28:20 2022
+# Finished Make data base on Thu Jan 13 18:12:41 2022
 
  
