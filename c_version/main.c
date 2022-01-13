@@ -10,8 +10,24 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+/*Global value*/
+    char mainFileName[]="Data.txt";
+    char mainDirName[]="Data";
 /*Structs*/
     /*For comodity*/
+        /*Rows Columns Strigs*/
+        typedef struct RowColumnStr
+        {
+            char*** str;    /*String:
+                             *-Pointer 1: Row (Strings)
+                             *-Pointer 2: Column (String)
+                             *-Pointer 3: Word (Character)*/
+            int row;        //Number of rows
+            int* col;       //Number of columns per row
+            int col_len;    //Length of array col
+            int** len;      //String len per row & column
+        }RowColumnStr;
+        
 
     /*Know My Grade*/
         /*Grades*/
@@ -37,7 +53,7 @@
         {
             char* name;             //Obligatory
             SubjFrac* subjFrac;     //Obligatory    Fractions of a subjet
-            int subjFrac_length;     //Obligatory    Number of Subjets Fractions
+            int subjFrac_length;    //Obligatory    Number of Subjets Fractions
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
         }Subjet;
 
@@ -131,19 +147,33 @@
         Arrays_KMG deleteElement(Arrays_KMG orig, Enum_KMG e, int arrayPos);
 
         //FILES
+            //PARESE STRING TO STRUCT
 
-            //MAIN
+            Box fscanMainBox();
+            Box* fscanBox(char* directory, char* filename);
+            Subjet* fscanSubjet(char* directory, char* filename);
+            SubjFrac* fscanSubjFrac(char* directory, char* filename);
+            Grade* fscanGrade(char* directory, char* filename);
 
-            void fprintInsideBox(Box box, char* directory);
-            void fprintInsideSubjet(Subjet subjet, char* directory);
-            void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory);
+            //READ FILES
 
-            //FPRINTS
+            RowColumnStr fileToStr(FILE* f, char delimiter);
+            void freeRowColStr();
+            
+            //WRITE
 
-            void fprintBox(char* filename, Box* box, int length);
-            void fprintSubjet(char* filename, Subjet* subjet, int length);
-            void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
-            void fprintGrade(char* filename, Grade* grades, int length);
+                //MAIN
+
+                void fprintInsideBox(Box box, char* directory);
+                void fprintInsideSubjet(Subjet subjet, char* directory);
+                void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory);
+
+                //FPRINTS
+
+                void fprintBox(char* filename, Box* box, int length);
+                void fprintSubjet(char* filename, Subjet* subjet, int length);
+                void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length);
+                void fprintGrade(char* filename, Grade* grades, int length);
 
             //EXTRA
             
@@ -876,9 +906,315 @@ void main(){
             }
     
         /*Files*/
-            /*Call to print*/
+            /*Read*/
 
-                /*Print in a file all data inside a Box and creates its directories*/
+                /*Parse all files in a box*/
+                Box fscanMainBox(){
+                    FILE* f;
+                    f = fopen(mainFileName, "r");
+                    if (f == NULL)
+                    {
+                        printf("%s is not created\n",mainFileName);
+                    }
+                    else{
+                        printf("Reading data in %s \n",mainFileName);
+                        RowColumnStr file = fileToStr(f,'-');
+                        Box main;
+                        char* name = (char*)malloc(sizeof(char)*strlen(file.str[0][0]));
+                        strcpy(name, file.str[0][0]);
+                        main.name = name;
+                        main.length = atoi(file.str[0][1]);
+                        main.type = atoi(file.str[0][2]);
+                        freeRowColStr(file);
+                        if(main.type==tBox){
+                            int size=strlen(mainDirName)+strlen("/")+strlen(main.name)+strlen(".txt");
+                            char* filename=NULL;
+                            filename=(char*)malloc(sizeof(char)*(size+1));
+                            strcpy(filename,mainDirName);                          
+                            strcat(filename,"/");
+                            strcat(filename,main.name);
+                            strcat(filename,".txt");
+                            main.box = fscanBox(mainDirName,filename);
+                            free(filename);
+                        }
+                        else{
+                            //main.subjet
+                        }
+                        
+                    }
+                }
+                /*Read Box file*/
+                Box* fscanBox(char* directory, char* filename){
+                    /*
+                    sprintf(res,"%s-%d-%d\n",box.name,box.length,box.type);
+                    */
+                    FILE* f;
+                    Box* box=NULL;
+                    f=fopen(filename,"r");
+                    if(f!=NULL){
+                        RowColumnStr file = fileToStr(f,'-');
+                        box=(Box*)malloc(sizeof(Box)*file.row);
+                        for(int i=0; i<file.row; i++){
+                            for(int j=0; j<file.col[i]; j++){
+                                if(j==0){
+                                    char* name = (char*)malloc(sizeof(char)*strlen(file.str[i][j]));
+                                    strcpy(name, file.str[i][j]);
+                                    box[i].name = name;
+                                }
+                                if(j==1){
+                                    box[i].length = atoi(file.str[i][j]);
+                                }
+                                if(j==2){
+                                    box[i].type = atoi(file.str[i][j]);
+
+                                    if(box[i].type == tBox){
+                                        /*NEW DIRECTORY*/
+                                        int size=strlen(directory)+strlen("/")+strlen(box[i].name);
+                                        char* newDirectory=NULL;
+                                        newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                                        strcpy(newDirectory,directory); 
+                                        strcat(newDirectory,"/");
+                                        strcat(newDirectory,box[i].name);
+
+                                        /*NEW FILE NAME*/
+                                        size=strlen(newDirectory)+strlen("/")+strlen(box[i].name)+strlen(".txt");
+                                        char* newFilename=NULL;
+                                        newFilename=(char*)malloc(sizeof(char)*(size+1));
+                                        strcpy(newFilename,newDirectory);                          
+                                        strcat(newFilename,"/");
+                                        strcat(newFilename,box[i].name);
+                                        strcat(newFilename,".txt");
+                                        box[i].box = fscanBox(newDirectory, newFilename);
+
+                                        /*Frees*/
+                                        free(newDirectory);
+                                        free(newFilename);
+                                    }
+                                    else if(box[i].type == tSubjet){
+
+                                    }
+                                }
+                                
+
+                            }
+                        }
+                    }
+                }
+                /*Read Subjet file*/
+                Subjet* fscanSubjet(char* directory, char* filename){
+                    /*
+                     sprintf(res,"%s-%d-%d\n",subjet.name,subjet.subjFrac_length,subjet.usedValue);
+                    */
+                    FILE* f;
+                    Subjet* subjet=NULL;
+                    f=fopen(filename,"r");
+                    if(f!=NULL){
+                        RowColumnStr file = fileToStr(f,'-');
+                        subjet=(Subjet*)malloc(sizeof(Subjet)*file.row);
+                        for(int i=0; i<file.row; i++){
+                            for(int j=0; j<file.col[i]; j++){
+                                if(j==0){
+                                    char* name = (char*)malloc(sizeof(char)*strlen(file.str[i][j]));
+                                    strcpy(name, file.str[i][j]);
+                                    subjet[i].name = name;
+                                }
+                                if(j==1){
+                                    subjet[i].subjFrac_length = atoi(file.str[i][j]);
+                                }
+                                if(j==2){
+                                    subjet[i].usedValue = atoi(file.str[i][j]);
+
+                                    /*NEW DIRECTORY*/
+                                    int size=strlen(directory)+strlen("/")+strlen(subjet[i].name);
+                                    char* newDirectory=NULL;
+                                    newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                                    strcpy(newDirectory,directory); 
+                                    strcat(newDirectory,"/");
+                                    strcat(newDirectory,subjet[i].name);
+
+                                    /*NEW FILE NAME*/
+                                    size=strlen(newDirectory)+strlen("/")+strlen(subjet[i].name)+strlen(".txt");
+                                    char* newFilename=NULL;
+                                    newFilename=(char*)malloc(sizeof(char)*(size+1));
+                                    strcpy(newFilename,newDirectory);                          
+                                    strcat(newFilename,"/");
+                                    strcat(newFilename,subjet[i].name);
+                                    strcat(newFilename,".txt");
+                                    subjet[i].subjFrac = fscanSubjFrac(newDirectory, newFilename);
+
+                                    /*Frees*/
+                                    free(newDirectory);
+                                    free(newFilename);
+                                }
+                            }
+                        }
+                    }
+                }
+                /*Read Subjet Fraction file*/
+                SubjFrac* fscanSubjFrac(char* directory, char* filename){
+                    /*
+                    sprintf(res,"%s-%d-%d-%.3f\n",subjFrac.name,subjFrac.grades_length,subjFrac.value,subjFrac.mean);
+                    */
+                    
+                    FILE* f;
+                    SubjFrac* subjFrac=NULL;
+                    f=fopen(filename,"r");
+                    if(f!=NULL){
+                        RowColumnStr file = fileToStr(f,'-');
+                        subjFrac=(SubjFrac*)malloc(sizeof(SubjFrac)*file.row);
+                        for(int i=0; i<file.row; i++){
+                            for(int j=0; j<file.col[i]; j++){
+                                if(j==0){
+                                    char* name = (char*)malloc(sizeof(char)*strlen(file.str[i][j]));
+                                    strcpy(name, file.str[i][j]);
+                                    subjFrac[i].name = name;
+                                }
+                                if(j==1){
+                                    subjFrac[i].grades_length = atoi(file.str[i][j]);
+                                }
+                                if(j==2){
+                                    subjFrac[i].value = atoi(file.str[i][j]);
+
+                                    /*NEW DIRECTORY*/
+                                    int size=strlen(directory)+strlen("/")+strlen(subjFrac[i].name);
+                                    char* newDirectory=NULL;
+                                    newDirectory=(char*)malloc(sizeof(char)*(size+1));
+                                    strcpy(newDirectory,directory); 
+                                    strcat(newDirectory,"/");
+                                    strcat(newDirectory,subjFrac[i].name);
+
+                                    /*NEW FILE NAME*/
+                                    size=strlen(newDirectory)+strlen("/")+strlen(subjFrac[i].name)+strlen(".txt");
+                                    char* newFilename=NULL;
+                                    newFilename=(char*)malloc(sizeof(char)*(size+1));
+                                    strcpy(newFilename,newDirectory);                          
+                                    strcat(newFilename,"/");
+                                    strcat(newFilename,subjFrac[i].name);
+                                    strcat(newFilename,".txt");
+                                    subjFrac[i].grades = fscanGrade(newDirectory, newFilename);
+
+                                    /*Frees*/
+                                    free(newDirectory);
+                                    free(newFilename);
+                                }
+                                if(j==3){
+                                    subjFrac[i].mean=(float)atof(file.str[i][j]);
+                                }
+                            }
+                        }
+                    }
+                }
+                /*Read Grade file*/
+                Grade* fscanGrade(char* directory, char* filename){
+                    /*
+                    sprintf(res,"%s-%.3f\n",grade.name,grade.grade);
+                    */
+                    FILE* f;
+                    Grade* grade=NULL;
+                    f=fopen(filename,"r");
+                    if(f!=NULL){
+                        RowColumnStr file = fileToStr(f,'-');
+                        grade=(Grade*)malloc(sizeof(Grade)*file.row);
+                        for(int i=0; i<file.row; i++){
+                            for(int j=0; j<file.col[i]; j++){
+                                if(j==0){
+                                    char* name = (char*)malloc(sizeof(char)*strlen(file.str[i][j]));
+                                    strcpy(name, file.str[i][j]);
+                                    grade[i].name = name;
+                                }
+                                if(j==1){
+                                    grade[i].grade = (float)atof(file.str[i][j]);
+                                }
+                            }
+                        }
+                    }
+
+                    return grade;
+                }
+                /*Save data from files in a three pointer.
+                 *-Pointer 1: Row (Strings)
+                 *-Pointer 2: Column (String)
+                 *-Pointer 3: Word (Caracter)*/
+                RowColumnStr fileToStr(FILE* f, char delimiter){
+                    rewind(f);
+                    RowColumnStr res;
+                    char*** str;
+                    res.col_len=1;//counter col[]
+                    res.col=(int*)malloc(sizeof(int));
+                    res.len=(int**)malloc(sizeof(int*));
+                    res.len[0]=(int*)malloc(sizeof(int));
+                    int row=0, col=0, len=0;
+                    
+                    str=(char***)malloc(sizeof(char**)*(row+1));
+                    str[0]=(char**)malloc(sizeof(char*)*(col+1));
+                    str[0][0]=(char*)malloc(sizeof(char)*(len+1));
+
+                    char aux='a';
+                    
+                    while(aux!=EOF){
+                        
+                        aux = getc(f);
+                        if(aux=='\n'){//New row -> Strings
+                            str[row][col][len]='\0';
+                            /*Save counters*/
+                            res.col[row]=col+1;     //Save number of columns per row
+                            res.len[row][col]=len+1;//Save number of characters per column
+                            /*Restart caracters*/
+                            len=0;
+                            col=0;
+                            row++;
+                            /*Memory necesary to work*/
+                            str=(char***)realloc(str,sizeof(char**)*(row+1));
+                            str[row]=(char**)realloc(str[row],sizeof(char*)*(col+1));
+                            str[row][col]=(char*)realloc(str[row],sizeof(char*)*(len+1));
+                            /*Memory of counters*/
+                            res.col=(int*)realloc(res.col,sizeof(int)*(row+1));
+                            res.len=(int**)realloc(res.len,sizeof(int*)*(row+1));
+                        }
+                        else if(aux==delimiter){//New column ->  String
+                            str[row][col][len]='\0';
+                            /*Save counters*/
+                            res.len[row][col]=len+1;//Save number of characters per column
+                            /*Restart caracters*/
+                            len=0;
+                            col++;
+                            /*Memory necesary to work*/
+                            str[row]=(char**)realloc(str[row],sizeof(char*)*(col+1));
+                            str[row][col]=(char*)realloc(str[row],sizeof(char*)*(len+1));
+                            /*Memory of counters*/
+                            res.len[row]=(int*)realloc(res.len,sizeof(int)*(col+1));
+                        }
+                        else if(aux==EOF){
+                            str[row][col][len]='\0';
+                        }
+                        else{//New caracter -> char
+                            str[row][col][len]=aux;
+                            
+                            len++;
+                            /*Memory necesary to work*/
+                            str[row][col]=(char*)realloc(str[row][col],sizeof(char)*(len+1));
+                        }
+                    }
+                    res.row=row+1;
+                    res.str=str;
+
+                    return res;
+                }
+                /*Free everything of RowColumnStr*/
+                void freeRowColStr(RowColumnStr data){
+                    for(int i=0; i<data.row; i++){
+                        for(int j=0; j<data.col[i]; j++){
+                            free(data.str[i][j]);
+                        }
+                        free(data.str[i]);
+                        free(data.len[i]);                       
+                    }
+                    free(data.len);
+                    free(data.col);
+                }
+            /*Call to write*/
+
+                /*Write in a file all data inside a Box and creates its directories*/
                 void fprintInsideBox(Box box, char* directory){
                     //Make .txt with the content of the box
                     int size=strlen(directory)+strlen("/")+strlen(box.name)+strlen(".txt");
@@ -927,7 +1263,7 @@ void main(){
                     }
                     free(newFile);
                 }
-                /*Print in a file all data inside a Subjet with its directories of subjet fraction*/
+                /*Write in a file all data inside a Subjet with its directories of subjet fraction*/
                 void fprintInsideSubjet(Subjet subjet, char* directory){
                     //Make .txt with the content of the Subjet
                     int size=strlen(directory)+strlen("/")+strlen(subjet.name)+strlen(".txt");
@@ -958,7 +1294,7 @@ void main(){
                     }
                     free(newFile);
                 }
-                /*Print in a file all grades data in .txt with the name of the Subjet Fraction*/
+                /*Write in a file all grades data in .txt with the name of the Subjet Fraction*/
                 void fprintInsideSubjFrac(SubjFrac subjFrac, char* directory){
                     //Make .txt with the content of the box
                     int size=strlen(directory)+strlen("/")+strlen(subjFrac.name)+strlen(".txt");
@@ -973,9 +1309,9 @@ void main(){
                     free(newFile);
                 }
 
-            /*print in Files*/
+            /*Writes in Files*/
 
-                /*Prints the data of an array of boxes inside a Box*/
+                /*Writes the data of an array of boxes inside a Box*/
                 void fprintBox(char* filename, Box* box, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -994,7 +1330,7 @@ void main(){
                     }
                     fclose(f);
                 }
-                /*Prints the data of an array of subjets inside a Box*/
+                /*Writes the data of an array of subjets inside a Box*/
                 void fprintSubjet(char* filename, Subjet* subjet, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -1017,7 +1353,7 @@ void main(){
                     }
                     fclose(f);
                 }
-                /*Prints the data of an array of a subjet fractions inside a Subjet*/
+                /*Writes the data of an array of a subjet fractions inside a Subjet*/
                 void fprintSubjFrac(char* filename, SubjFrac* subjFrac, int length){
                     FILE* f;
                     f = fopen(filename, "r");
@@ -1035,7 +1371,7 @@ void main(){
                     }
                     fclose(f);
                 }
-                /*Prints the data of an array of grades inside a Subjet_Fraction(SubjFrac)*/
+                /*Writes the data of an array of grades inside a Subjet_Fraction(SubjFrac)*/
                 void fprintGrade(char* filename, Grade* grades, int length){
                     FILE* f;
                     f = fopen(filename, "r");
