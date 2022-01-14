@@ -1,6 +1,10 @@
 /*
     Objectives:
     -Make a program which reading some .txt, calculates your grade in the schooll, college, university, ...
+    -You save your subjets in boxes and you can save this boxes to another boxes. Each box can calculate
+    the mean.
+
+    -Make a .html where saves all of this data and used to know your worst subjet or your best subjet.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,6 +58,8 @@
             SubjFrac* subjFrac;     //Obligatory    Fractions of a subjet
             int subjFrac_length;    //Obligatory    Number of Subjets Fractions
             int usedValue;          //Obligatory    To know the value that has being used in the Subjets Fractions
+        
+            float mean;         //Not Obligatory
         }Subjet;
 
         /*Box*/
@@ -74,7 +80,7 @@
                 struct Box* box;
             };
             
-            
+            float mean;         //Not Obligatory
         }Box;
         
 
@@ -936,25 +942,25 @@ void main(){
                         main.type = atoi(file.str[0][2]);
                         freeRowColStr(file);
                         if(main.type==tBox){
-                            int size=strlen(mainDirName)+strlen("/")+strlen(main.name)+strlen(".txt");
+                            int size=strlen(main.name)+strlen("/")+strlen(main.name)+strlen(".txt");
                             char* filename=NULL;
                             filename=(char*)malloc(sizeof(char)*(size+1));
-                            strcpy(filename,mainDirName);                          
+                            strcpy(filename,main.name);                          
                             strcat(filename,"/");
                             strcat(filename,main.name);
                             strcat(filename,".txt");
-                            main.box = fscanBox(mainDirName,filename);
+                            main.box = fscanBox(main.name,filename);
                             free(filename);
                         }
                         else{
-                            int size=strlen(mainDirName)+strlen("/")+strlen(main.name)+strlen(".txt");
+                            int size=strlen(main.name)+strlen("/")+strlen(main.name)+strlen(".txt");
                             char* filename=NULL;
                             filename=(char*)malloc(sizeof(char)*(size+1));
-                            strcpy(filename,mainDirName);                          
+                            strcpy(filename,main.name);                          
                             strcat(filename,"/");
                             strcat(filename,main.name);
                             strcat(filename,".txt");
-                            main.subjet = fscanSubjet(mainDirName,filename);
+                            main.subjet = fscanSubjet(main.name,filename);
                             free(filename);
                         }
                         printf("All data required read\n");
@@ -1036,6 +1042,7 @@ void main(){
 
                             }
                         }
+                        freeRowColStr(file);
                     }
                     return box;
                 }
@@ -1087,6 +1094,7 @@ void main(){
                                 }
                             }
                         }
+                        freeRowColStr(file);
                     }
                     return subjet;
                 }
@@ -1142,6 +1150,7 @@ void main(){
                                 }
                             }
                         }
+                        freeRowColStr(file);
                     }
                     return subjFrac;
                 }
@@ -1168,6 +1177,7 @@ void main(){
                                 }
                             }
                         }
+                        freeRowColStr(file);
                     }
 
                     return grade;
@@ -1236,8 +1246,13 @@ void main(){
                             str[row][col]=(char*)realloc(str[row][col],sizeof(char)*(len+2));
                         }
                     }
-                    res.row=row+1;
-                    res.str=str;
+
+                    //Saving data to res
+                    res.row=row+1;  //Coping the number of rows
+                    res.str=str;    //Coping the triple pointer.
+                    //Close file
+                    fclose(f);
+
                     return res;
                 }
                 /*Print rowColumStr*/
@@ -1266,10 +1281,16 @@ void main(){
             /*Call to write*/
 
                 void fprintMainBox(Box main){
+                    /*Paste the main box to an "array" with poniters to use the func that prints
+                     *the data of arrays of boxes.
+                     */
                     Box* box = (Box*)malloc(sizeof(Box));
                     box[0]=main;
+                    //Print the data of the main box in the project directory
                     fprintBox(mainFileName,box,1);
+                    //Then print the data inside of the main box
                     fprintInsideBox(main, main.name);
+                    //free
                     free(box);
                 }
                 /*Write in a file all data inside a Box and creates its directories*/
@@ -1384,10 +1405,13 @@ void main(){
                     
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
-                        fprintf(f,"%s",boxToString(box[i]));
+                        char* toString = NULL;
+                        toString = boxToString(box[i]);
+                        fprintf(f,"%s",toString);
                         if(!(i>=length-1)){
                             fprintf(f,"\n");
                         }
+                        free(toString);
                     }
                     fclose(f);
                 }
@@ -1406,10 +1430,13 @@ void main(){
                     
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
-                        fprintf(f,"%s",subjetToString(subjet[i]));
+                        char* toString = NULL;
+                        toString = subjetToString(subjet[i]);
+                        fprintf(f,"%s",toString);
                         if(!(i>=length-1)){
                             fprintf(f,"\n");
                         }
+                        free(toString);
                     }
                     fclose(f);
                 }
@@ -1427,10 +1454,13 @@ void main(){
                     }
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
-                        fprintf(f,"%s",subjFracToString(subjFrac[i]));
-                         if(!(i>=length-1)){
+                        char* toString = NULL;
+                        toString = subjFracToString(subjFrac[i]);
+                        fprintf(f,"%s",toString);
+                        if(!(i>=length-1)){
                             fprintf(f,"\n");
                         }
+                        free(toString);
                     }
                     fclose(f);
                 }
@@ -1448,10 +1478,13 @@ void main(){
                     }
                     f = fopen(filename, "w");
                     for(int i=0; i<length; i++){
-                        fprintf(f,"%s",gradeToString(grades[i]));
+                        char* toString = NULL;
+                        toString = gradeToString(grades[i]);
+                        fprintf(f,"%s",toString);
                         if(!(i>=length-1)){
                             fprintf(f,"\n");
                         }
+                        free(toString);
                     }
                     fclose(f);
                 }
