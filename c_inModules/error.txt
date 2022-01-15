@@ -1,0 +1,20 @@
+cc -g libs/filemanager.o libs/basic.o printKMG.o fscanKNG.o fprintKNG.o tostringKNG.o editKNG.o main.o newKNG.o -o prog.exe
+CHARS
+/usr/bin/ld: fscanKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: fscanKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+
+/usr/bin/ld: fprintKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: fprintKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+
+/usr/bin/ld: tostringKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: tostringKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+/usr/bin/ld: editKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: editKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+/usr/bin/ld: main.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: main.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+/usr/bin/ld: newKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: multiple definition of `mainFileName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:81: first defined here
+/usr/bin/ld: newKNG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: multiple definition of `mainDirName'; printKMG.o:/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/knowMyGrade.h:82: first defined here
+/usr/bin/ld: main.o: in function `main':
+/mnt/c/Users/victo/OneDrive/Programas_ronnosos/knowMyGrade/knowMyGrade/c_inModules/main.c:27: undefined reference to `deleteDataDir'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:10: all] Error 1
