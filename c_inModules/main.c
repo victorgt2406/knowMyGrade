@@ -14,7 +14,7 @@
 #include "fscanKNG.h"
 #include "newKNG.h"
 #include "printKNG.h"
-#include "toStringKNG.h"
+#include "tostringKNG.h"
 
 char mainFileName[20]="Data.txt";
 char mainDirName[20]="Data";
